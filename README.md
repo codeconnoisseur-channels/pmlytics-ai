@@ -1,10 +1,6 @@
 # PMLytics AI
 
-[![CI](https://github.com/codeconnoisseur-channels/pmlytics-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/codeconnoisseur-channels/pmlytics-ai/actions/workflows/ci.yml)
-
-PMLytics AI is an evidence-grounded product investigation system that helps product managers turn customer support, product analytics, and engineering signals into a decision brief.
-
-Pocket is the fictional fintech company used for the synthetic demonstration data. PMLytics AI is the product.
+PMLytics AI is a multi-agent product investigation system that helps product managers investigate fragmented evidence across Zendesk (customer support data), PostHog (user behaviour analytics), and Jira (engineering issues) to help decide what the team should do next.
 
 [![PMLytics AI product overview](docs/assets/pmlytics-product-overview.png)](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing)
 
@@ -97,6 +93,7 @@ See [Evaluation, Performance, and Failures](docs/project/03_EVALUATION_PERFORMAN
 
 ## Current limitations
 
+- Pocket is the fictional fintech company represented in the demonstration data. No real Pocket customer data is used.
 - Zendesk and Jira are mocked, and all demo evidence is synthetic.
 - The system has not been validated on production customer data or sustained production traffic.
 - Model latency and cost vary with provider conditions and whether revision is required.
