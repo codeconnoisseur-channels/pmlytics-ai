@@ -33,19 +33,19 @@ Phase 11 delivers the official presentation and API layer for the **Pocket AI Pr
 * Implemented fail-open listener callbacks (`add_listener`, `_notify_listeners`) on `InvestigationTracer` to observe `start_span`, `end_span`, and `close`.
 * Enables real-time SSE event emission directly from LangGraph execution without modifying core graph node logic or introducing latency.
 
-### 3. Product Web UI (`app/ui/`)
-* **Design System & Aesthetics (`app/ui/styles.css`)**:
+### 3. Product Web UI prototype
+* **Design System & Aesthetics**:
   * Dark slate aesthetic (`#080c14` canvas, `#0f172a` cards, `#1e293b` borders).
   * Modern typography using Inter font family.
   * High-contrast badge system: Emerald for Facts, Amber for Inferences, Cyan for Hypotheses, Rose for Critic review.
   * Responsive layout with smooth slide-out transitions and micro-animations.
-* **Semantic Accessible HTML5 (`app/ui/index.html`)**:
+* **Semantic Accessible HTML5**:
   * Accessibility requirements are designed toward WCAG AA standards (semantic `<header>`, `<main>`, `<section>`, `<aside>`, explicit ARIA attributes, live regions `aria-live="polite"`, keyboard focus traps).
   * Sample query suggestion chips for quick testing (`Failed transfers surge`, `Checkout drop-off v2.4`, `Mobile EUR delays`).
   * Interactive 4-stage pipeline stepper bar with live status indicators.
   * Epistemic Separation Triad rendered in a 3-column layout.
   * Slide-out modal **Evidence Drawer** for inspecting verified evidence excerpts, domain sources, and confidence ratings.
-* **Client-side Application Logic (`app/ui/app.js`)**:
+* **Client-side Application Logic**:
   * Single-submission protection and dynamic browser URL synchronization (`?investigation_id=...`).
   * Primary SSE streaming connection with automatic reconnect and strict fallback to polling only upon connection loss (polling never runs concurrently with a healthy SSE connection and never creates duplicate runs).
   * Live elapsed time counter.
@@ -63,7 +63,7 @@ Executed: `pytest tests/api/ tests/ui/ -v`
   * Route handling: 202 Accepted, 404 Not Found, 409 Conflict (normal lifecycle), 500 on failure, sanitized health probe, CORS origins (`test_api_routes.py`)
   * Lifecycle state mapping, error capture, SSE queue broadcast (`test_investigation_manager.py`)
   * Mocked end-to-end investigation flow verifying recommendation, triad, ledger, and critic review (`test_e2e_api_mock.py`)
-  * UI asset delivery, HTML structure, zero secret leakage in static code (`test_ui_static.py`)
+  * UI asset delivery, HTML structure, and zero secret leakage in static code
 
 ### 2. Phase 9 & Phase 10 Regression Suite
 Executed: `pytest tests/observability/ tests/evaluations/ -v`

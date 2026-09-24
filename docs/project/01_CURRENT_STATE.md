@@ -47,9 +47,7 @@ The user asks a bounded product question, optionally selects a date range, and s
 
 ### Frontend
 
-The authoritative user interface is the Next.js application in [`frontend/`](../../frontend/). It owns presentation, Supabase browser/server session handling, protected-route redirects, bearer-token attachment, progress rendering, polling fallback, and cached public sample reports. It does not own investigation logic or evidence interpretation.
-
-An earlier static prototype remains in [`app/ui/`](../../app/ui/) and is still mounted at the FastAPI root for historical compatibility. It is not the current product frontend. A production deployment should route users to the Next.js application; removing the prototype and its compatibility tests is remaining cleanup rather than a second supported frontend architecture.
+The user interface is the Next.js application in [`frontend/`](../../frontend/). It owns presentation, Supabase browser/server session handling, protected-route redirects, bearer-token attachment, progress rendering, polling fallback, and cached public sample reports. It does not own investigation logic or evidence interpretation.
 
 ### Backend
 
@@ -187,7 +185,7 @@ The latest dataset report records 51 support tickets and 15,223 PostHog events. 
 
 ### What is current
 
-- The deterministic evaluator, frozen semantic judge, baseline implementations, stress fixtures, and preserved run artifacts exist in the repository.
+- The deterministic evaluator, version-controlled LLM-based evaluator, baseline implementations, stress fixtures, and preserved run artifacts exist in the repository.
 - The evaluator's final behavioural stress gate is 15/15.
 - The semantic judge is not human-qualified ground truth. A provenance audit invalidated the attempted clean human re-rating because the submitted ratings were generated in the agent environment rather than supplied independently by human raters.
 - Citation identity and provenance are also enforced at runtime, not only during offline evaluation.
@@ -201,7 +199,7 @@ The best controlled performance set is the Phase 12A Standard-profile, three-sce
 | --- | --- |
 | Wall-clock latency | 98.46s, 121.41s, 107.43s; average 109.10s |
 | Provider cost | $0.0559, $0.0807, $0.0601; average $0.0656 |
-| Quality | 20/20, 18/20, 20/20 on the frozen five-dimension judge |
+| Quality | 20/20, 18/20, 20/20 on the versioned five-dimension evaluator |
 | Citation validity | 8/8, 8/8, 9/9; zero hallucinated citations |
 | Truncation | Zero in that validation set |
 

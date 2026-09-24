@@ -43,7 +43,7 @@ system, approved in ADR-0021:
 
 ## 2. Design Tokens Reference
 
-These tokens are extracted directly from the frozen reference stylesheet (`app/ui/styles.css`) and constitute the production TailwindCSS theme extension.
+These tokens define the production TailwindCSS theme extension.
 
 ### 2.1 Color Palette
 
@@ -83,7 +83,7 @@ The live investigation progress bar remains `#2563eb`. This is an operational st
 signal, not the general brand colour.
 
 #### Source Provenance Indicators
-Each external evidence source has a dedicated, non-overlapping semantic color pairing verified against the frozen prototype (`app/ui/styles.css`):
+Each external evidence source has a dedicated, non-overlapping semantic color pairing:
 | Source | Text | Background | Border | Purpose |
 | :--- | :--- | :--- | :--- | :--- |
 | **Zendesk** (Customer Support) | `#047857` (emerald-700) | `#ecfdf5` (emerald-50) | `#a7f3d0` (emerald-200) | Support tickets, customer quotes, CSAT notes |

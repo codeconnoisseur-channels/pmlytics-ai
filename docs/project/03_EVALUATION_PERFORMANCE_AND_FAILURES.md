@@ -36,7 +36,7 @@ Programmatic checks measure properties that should not depend on another model's
 
 These checks are necessary but not sufficient. A report can cite valid records and still make a poor product judgement.
 
-### Layer 2: frozen LLM evaluator
+### Layer 2: version-controlled LLM evaluator
 
 The semantic evaluator scores five dimensions independently on a 0 to 4 scale:
 
@@ -48,7 +48,7 @@ The semantic evaluator scores five dimensions independently on a 0 to 4 scale:
 
 It also performs claim-level classification, including fully supported, partially supported, unsupported, contradicted, legitimate inference, evidence-informed hypothesis, and unsupported causal assertion.
 
-The final judge prompt is frozen at SHA-256 `8981496ad497e5f68d809e322c0a2d98fd8b12f5104fb611f784534ec3ef1b63`. Freezing prevents post-hoc rubric changes from making later results incomparable.
+The evaluator prompt is locked to a version identified by SHA-256 `8981496ad497e5f68d809e322c0a2d98fd8b12f5104fb611f784534ec3ef1b63`. Version locking prevents post-hoc rubric changes from making later results incomparable; it does not mean the evaluator is unused or permanently retired.
 
 ### Behavioural stress testing
 
@@ -65,7 +65,7 @@ The evaluator was tested on 15 deliberately constructed cases, including:
 - adversarial instructions inside evidence;
 - strong engineering matches.
 
-The initial stress result was 14/15. After correcting an evidence-context serialization defect and refining one over-specified fixture, the frozen evaluator passed 15/15.
+The initial stress result was 14/15. After correcting an evidence-context serialization defect and refining one over-specified fixture, the version-controlled evaluator passed 15/15.
 
 ## The human-calibration attempt and why it was retired
 
@@ -81,7 +81,7 @@ A later artifact labelled as a clean, equivalent-input re-rating appeared to pro
 Current position:
 
 - the provenance audit is preserved as historical research evidence, while the invalid raw rating artifacts are excluded from the public repository to avoid presenting them as human ground truth;
-- the frozen semantic evaluator is useful but explicitly limited;
+- the LLM-based semantic evaluator is useful but explicitly limited;
 - deterministic evidence checks remain the primary hard gate;
 - no claim is made that the LLM judge is human-qualified or objective ground truth.
 
@@ -127,7 +127,7 @@ It did not prove:
 - stable cost or latency under production provider load;
 - broad domain generalisation outside the designed fintech scenarios;
 - enterprise security, reliability, or tenant isolation;
-- that the frozen judge is an objective gold standard.
+- that the LLM-based evaluator is an objective gold standard.
 
 ## Part II: Performance and cost
 
@@ -191,7 +191,7 @@ The optimisation introduced:
 | Input tokens | 17,692 | 25,111 | 21,042 | 21,281 average |
 | Output tokens | 5,395 | 9,410 | 6,611 | 7,138 average |
 | Provider cost | $0.0559 | $0.0807 | $0.0601 | $0.0656 average |
-| Frozen judge score | 20/20 | 18/20 | 20/20 | 19.3/20 average |
+| LLM-based evaluator score | 20/20 | 18/20 | 20/20 | 19.3/20 average |
 | Citation validity | 8/8 | 8/8 | 9/9 | 100% |
 
 Relative to the single matched profiling baseline, Scenario 1 moved from 558.08 seconds to 98.46 seconds and from $0.788899 to $0.0559. That is evidence that context and routing changes mattered. It is not a controlled claim that every current question will achieve the same improvement.
@@ -374,10 +374,10 @@ Information asymmetry, an ambiguous rating construct, and unverified rater prove
 The clean requalification was revoked, the provenance failure was documented, and the final framework stopped treating the available human-labelled artifacts as quantitative ground truth.
 
 **Measured result**  
-There is no valid human-qualified agreement result. The frozen judge passed its 15-case behavioural stress suite, but that is a test of declared evaluator behaviours, not independent human validation.
+There is no valid human-qualified agreement result. The LLM-based evaluator passed its 15-case behavioural stress suite, but that is a test of declared evaluator behaviours, not independent human validation.
 
 **Remaining limitation**  
-The frozen judge retains model bias and should not be the sole production acceptance mechanism.
+The LLM-based evaluator retains model bias and should not be the sole production acceptance mechanism.
 
 **Lesson**  
 Human review is valuable, but its provenance and protocol must be auditable. Synthetic or AI-generated ratings cannot be used to validate an LLM judge.

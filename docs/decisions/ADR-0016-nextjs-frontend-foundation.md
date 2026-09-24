@@ -4,7 +4,7 @@
 Accepted (Phase 14 Step 1 Approved)
 
 ## Context
-In Phase 13, the web experience was refined, audited across multiple viewports (1440×900, 1280×800, and 390×844), and formally validated using a vanilla HTML/CSS/JavaScript prototype (`app/ui/index.html`, `app/ui/styles.css`, `app/ui/app.js`). The visual gate for Phase 13 closed with unanimous approval:
+In Phase 13, the web experience was refined and audited across multiple viewports (1440×900, 1280×800, and 390×844) before the Next.js implementation was established. The visual gate for Phase 13 closed with unanimous approval:
 * Landing page visual direction: **APPROVED & FROZEN**
 * Investigation workspace hierarchy and editorial layout: **APPROVED & FROZEN**
 * Multi-viewport adversarial QA: **PASS**
@@ -15,11 +15,8 @@ With the UX hierarchy, visual language, and interaction models established, we m
 
 ## Decisions
 
-### 1. Freeze the Vanilla Prototype as the Authoritative Visual Reference
-The existing vanilla implementation in `app/ui/` is immediately **FROZEN**.
-* **Role:** It serves as the immutable, executable reference implementation and visual benchmark.
-* **Inviolability:** No further code edits, design alterations, or layout restructurings are permitted in `app/ui/` unless an explicit regression is identified.
-* **Fidelity Requirement:** The production Next.js implementation must reproduce the validated UX, typography, responsive behavior, epistemic color language, and citation deep-linking bit-for-bit against this reference.
+### 1. Preserve the approved design direction during migration
+The approved Phase 13 experience served as the migration baseline for the Next.js implementation. The temporary implementation used during that phase has since been retired and removed.
 
 ### 2. Adopt Next.js 16.x + React 19.x + TypeScript Strict as Production Frontend
 The production frontend will be implemented in a dedicated `frontend/` directory within this repository (monorepo layout), utilizing:

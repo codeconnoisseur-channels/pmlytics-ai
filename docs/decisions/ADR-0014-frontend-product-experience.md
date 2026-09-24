@@ -4,7 +4,7 @@
 Accepted (Formally Approved)
 
 ## Context
-In Phase 11, a prototype web interface was implemented using vanilla HTML5, vanilla CSS, and vanilla JavaScript (`app/ui/index.html`, `app/ui/styles.css`, `app/ui/app.js`), served directly by FastAPI via a static files mount.
+In Phase 11, a temporary web prototype was implemented with vanilla HTML, CSS, and JavaScript and served directly by FastAPI.
 
 While this V0 prototype successfully proved end-to-end API integration and browser execution, Phase 13 introduces formal product requirements for:
 1. **Multi-Route Information Architecture:** Distinct routes for Launchpad (`/app`), Investigation Workspace (`/app/investigations/:id`), History (`/app/history`), Saved (`/app/saved`), Settings (`/app/settings`), and Shared Briefs (`/share/:token`).

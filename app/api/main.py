@@ -2,13 +2,11 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, Response
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from mocks.lifecycle import ensure_mock_services_running, stop_mock_services
 
 from app.api.dependencies import get_investigation_manager
@@ -58,22 +56,7 @@ def create_app() -> FastAPI:
     # 2. Register API Routes
     app.include_router(router)
 
-    # 3. Mount Static UI Files & Root Index Route
-    ui_dir = Path(__file__).resolve().parent.parent / "ui"
-    if ui_dir.exists():
-        app.mount("/static", StaticFiles(directory=str(ui_dir)), name="static")
-
-        @app.get("/", include_in_schema=False)
-        async def serve_index() -> Response:
-            index_path = ui_dir / "index.html"
-            if index_path.exists():
-                return FileResponse(str(index_path))
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content={"message": "UI index.html not found."},
-            )
-
-    # 4. Standardized Error Handlers
+    # 3. Standardized Error Handlers
     from fastapi.encoders import jsonable_encoder
 
     @app.exception_handler(RequestValidationError)

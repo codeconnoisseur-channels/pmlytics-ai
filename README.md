@@ -1,8 +1,14 @@
 # PMLytics AI
 
+[![CI](https://github.com/codeconnoisseur-channels/pmlytics-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/codeconnoisseur-channels/pmlytics-ai/actions/workflows/ci.yml)
+
 PMLytics AI is an evidence-grounded product investigation system that helps product managers turn customer support, product analytics, and engineering signals into a decision brief.
 
 Pocket is the fictional fintech company used for the synthetic demonstration data. PMLytics AI is the product.
+
+[![PMLytics AI product overview](docs/assets/pmlytics-product-overview.png)](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing)
+
+[Watch the product demo](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing)
 
 ## What it does
 
@@ -72,16 +78,20 @@ This repository is a portfolio and demonstration environment, not a production d
 
 Agents access evidence only through typed, role-bound domain tools. They are read-only and cannot change Zendesk, Jira, PostHog, or product systems.
 
-## Evaluation
+## How quality was checked
 
-The project uses two complementary evaluation layers:
+A decision brief is only useful if a product manager can trust where its claims came from. PMLytics AI therefore checks that:
 
-- deterministic checks for citation validity, provenance, schema completeness, evidence coverage, epistemic separation, and execution bounds;
-- a frozen LLM evaluator for groundedness, cross-source reasoning, contradiction handling, causal discipline, and recommendation defensibility.
+- citations resolve to evidence the system actually retrieved;
+- observations, interpretations, and hypotheses remain distinct;
+- contradictory sources are acknowledged rather than silently combined;
+- causal claims do not go beyond the available evidence;
+- recommendations and confidence levels are proportionate to the evidence;
+- agent and revision loops remain within defined limits.
 
-The frozen evaluator passed a 15-case behavioural stress suite after an evidence-context defect was corrected. It is not presented as human-qualified ground truth: a later provenance audit invalidated the attempted clean human re-rating, so deterministic checks remain the hard gate and the LLM evaluator remains a limited semantic signal. A historical Phase 12A three-scenario validation produced 100% valid citations, quality scores of 20/20, 18/20, and 20/20, average wall-clock latency of 109.10 seconds, and average provider cost of $0.0656. Those are historical measurements, not current service-level guarantees: later safety changes restored a post-revision Critic check and added a bounded specialist repair path.
+Code-based checks enforce objective requirements such as valid citations and execution bounds. A separate LLM-based reviewer checks whether the analysis stays close to the evidence, handles disagreement between sources, avoids mistaking correlation for cause, and supports the recommended action. That reviewer passed all 15 cases in a targeted stress test after a missing evidence field was identified and restored.
 
-The planned large architecture benchmark was deliberately stopped after infrastructure cost failures. No claim of statistically proven multi-agent superiority is made.
+In one controlled three-scenario test, every citation resolved to retrieved evidence and all three reports received at least 18/20 from the reviewer. Average investigation time was 109.10 seconds and average model cost was $0.0656. These results describe that test on selected synthetic scenarios; they are not production guarantees or proof that a multi-agent design is always better.
 
 See [Evaluation, Performance, and Failures](docs/project/03_EVALUATION_PERFORMANCE_AND_FAILURES.md).
 
@@ -190,6 +200,8 @@ docs/         Specifications, ADRs, phase reports, and project knowledge base
 
 ## Demo
 
+Watch the [PMLytics AI product demo](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing).
+
 The landing page includes four precomputed reference investigations that can be inspected without spending provider credit. Starting a new live investigation requires authentication and may incur OpenRouter usage.
 
 Recommended demo flow:
@@ -198,3 +210,7 @@ Recommended demo flow:
 2. open its evidence drawer and trace findings to source records;
 3. compare facts, inferences, hypotheses, confidence, and follow-up items;
 4. only then run a live, date-bounded investigation if provider spend is intentional.
+
+## License
+
+This project is available under the [MIT License](LICENSE).

@@ -10,14 +10,13 @@
 
 ## 1. Executive Summary & Architectural Invariants
 
-This specification defines the production React / Next.js frontend architecture for the **Pocket AI Product Discovery Team**. The production frontend replaces the validated vanilla HTML/CSS/JS prototype (`app/ui/`) with an enterprise-grade, typed, and accessible web application while preserving 100% of the approved UX hierarchy, visual language, and interaction models.
+This specification defines the production React / Next.js frontend architecture for the **Pocket AI Product Discovery Team** as a typed and accessible web application.
 
 ### Architectural Invariants
 1. **Authoritative Backend Boundary:** The backend (FastAPI + LangGraph multi-agent DAG running on port 8000) remains the single source of truth for business logic, agent orchestration, evidence synthesis, and lifecycle states.
 2. **Zero Business Logic in Frontend:** The frontend is strictly a presentation, observation, and inquiry-triggering layer. It performs no agent coordination, external vendor API calls, or heuristic metric calculations.
 3. **Zero Data Simulation:** The UI renders only verified API payloads and lifecycle milestones emitted by the backend. It will never fabricate progress bars, fake streaming text, or synthetic token/call counters.
 4. **Epistemic & Evidentiary Rigor:** Canonical evidence IDs (`[EV-xxx]`) and the separation between **Facts**, **Inferences**, and **Hypotheses** remain strictly enforced at the component and data layer.
-5. **Frozen Prototype as Visual Reference:** The vanilla prototype in `app/ui/` serves as the pixel and interaction reference baseline. Any visual divergence must be treated as a defect unless explicitly approved via an ADR.
 
 ---
 

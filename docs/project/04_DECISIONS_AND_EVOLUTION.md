@@ -190,9 +190,9 @@ PMLytics AI did not arrive at its current architecture in one step. This documen
 
 **Options considered.** Manual review only; LLM judge only; deterministic tests only; or a layered approach.
 
-**Evidence.** Deterministic validators caught citation and contract failures. The frozen judge captured semantic quality but initially lacked a support field. Initial human comparison was informationally asymmetric and sometimes lenient. A later supposedly clean human re-rating was invalidated when a provenance audit showed that it had been generated in the agent environment rather than by independent human raters. A large architecture benchmark then failed operationally because of HTTP 402 provider-credit errors.
+**Evidence.** Deterministic validators caught citation and contract failures. The LLM-based evaluator captured semantic quality but initially lacked a support field. Initial human comparison was informationally asymmetric and sometimes lenient. A later supposedly clean human re-rating was invalidated when a provenance audit showed that it had been generated in the agent environment rather than by independent human raters. A large architecture benchmark then failed operationally because of HTTP 402 provider-credit errors.
 
-**Decision.** Use deterministic checks, a frozen LLM judge, stress scenarios, and qualitative human review. Treat deterministic checks as hard gates, do not describe the judge as human-qualified ground truth, and do not publish invalid human-calibration or benchmark aggregates.
+**Decision.** Use deterministic checks, a version-controlled LLM-based evaluator, stress scenarios, and qualitative human review. Treat deterministic checks as hard gates, do not describe the evaluator as human-qualified ground truth, and do not publish invalid human-calibration or benchmark aggregates.
 
 **Trade-off.** The result is more honest but less convenient than a single headline score.
 

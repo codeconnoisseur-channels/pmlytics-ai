@@ -14,7 +14,7 @@
 
 Phase 11 delivers:
 1. **Asynchronous HTTP API Server (`app/api/`)**: A single-process FastAPI application exposing structured, typed endpoints for launching investigations (`202 Accepted`), tracking real-time milestone transitions via Server-Sent Events (SSE) and polling, and retrieving structured product recommendations and evidence ledgers.
-2. **Interactive Product Management Interface (`app/ui/`)**: A responsive, accessible single-page web interface (Semantic HTML5 / Vanilla CSS / Vanilla ES6+ JS) purpose-built for Product Managers, featuring:
+2. **Interactive Product Management Interface**: A responsive, accessible single-page web interface purpose-built for Product Managers, featuring:
    - Resilient progress tracking with live reconnection across the ~280–290s execution lifecycle.
    - **Explicit Epistemic Distinction Triad**: Visually distinguishing **Observed Facts**, **Analytical Inferences**, and **Testable Hypotheses**.
    - **Structured Evidence Transparency Drawer**: Direct inspection of underlying customer support tickets, telemetry funnels, and engineering context without exposing raw tool payloads or sensitive credentials.
@@ -208,7 +208,7 @@ class InvestigationDetailResponse(BaseModel):
 
 ---
 
-## 6. UI Design, Accessibility & Evidence Transparency (`app/ui/`)
+## 6. UI Design, Accessibility & Evidence Transparency
 
 ### 6.1 Design Tokens & Responsive Layout
 - **Palette**:
@@ -295,13 +295,13 @@ class InvestigationDetailResponse(BaseModel):
 - **[NEW] [`app/api/main.py`](../../app/api/main.py)**:
   - FastAPI application factory.
   - CORS middleware with strict configured origins.
-  - Static file mounting (`app/ui/` mounted at `/` and `/static`).
+  - Static file mounting for the temporary prototype.
   - Standardized JSON exception handlers.
 
-### Component 3: Product Web Interface (`app/ui/`)
-- **[NEW] `app/ui/index.html`**: Semantic HTML5 structure with ARIA live regions, keyboard accessibility, hero query bar, progress pipeline, epistemic triad cards, and slide-out evidence drawer.
-- **[NEW] `app/ui/styles.css`**: Vanilla CSS Design System with dark slate palette, typography tokens, responsive grid, high-contrast badges, and micro-animations.
-- **[NEW] `app/ui/app.js`**: Vanilla JS frontend logic:
+### Component 3: Product Web Interface prototype
+- **Semantic HTML5**: ARIA live regions, keyboard accessibility, hero query bar, progress pipeline, epistemic triad cards, and slide-out evidence drawer.
+- **Vanilla CSS design system**: Dark slate palette, typography tokens, responsive grid, high-contrast badges, and micro-animations.
+- **Vanilla JavaScript client logic**:
   - Single-submission handling and duplicate prevention.
   - URL synchronization (`?investigation_id=...`) and reconnect on page reload.
   - SSE connection handling with polling fallback.
@@ -328,7 +328,7 @@ class InvestigationDetailResponse(BaseModel):
   - Reconnect snapshot event emission.
 - **[NEW] `tests/api/test_e2e_api_mock.py`**:
   - Fast end-to-end integration test with mocked `InvestigationService` validating launch $\to$ SSE stream $\to$ result retrieval in $<3$s.
-- **[NEW] `tests/ui/test_ui_static.py`**:
+- **Static prototype tests**:
   - Static asset delivery test.
   - Scans client-delivered HTML/CSS/JS ensuring zero API keys or secrets are embedded.
 
