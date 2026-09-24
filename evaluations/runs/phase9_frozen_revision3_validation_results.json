@@ -1,0 +1,333 @@
+{
+  "manifest": {
+    "evaluation_type": "frozen_calibrated_llm_judge_qualification",
+    "judge_version": "v3.0-frozen-calibrated",
+    "prompt_sha256": "8981496ad497e5f68d809e322c0a2d98fd8b12f5104fb611f784534ec3ef1b63",
+    "model": "openai/gpt-5.4",
+    "provider": "OpenRouter / OpenAI",
+    "temperature": 0.0,
+    "cases_evaluated": 10,
+    "qualification_status": "CONTAMINATED / INVALID FOR FINAL JUDGE QUALIFICATION",
+    "invalidation_reason": "Human reference ratings against which this run was evaluated suffered from information asymmetry (exposure of Critic Outcome and incomplete support excerpts). Preserved as historical evidence only.",
+    "completed_at": "2026-09-16T14:18:17.400651+00:00"
+  },
+  "results": [
+    {
+      "case_id": "judge_val_01",
+      "judge_run_id": "judge_frozen_val_b6db8b87",
+      "timestamp": "2026-09-16T14:16:34.325350+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 8.695,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 2,
+        "cross_source_reasoning": 4,
+        "contradiction_handling": 4,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 4
+      },
+      "rationales": {
+        "groundedness": "The two factual observations are supported by the ledger: a midnight failure spike in PostHog and a Jira note about a maintenance vacuum schedule conflict. However, the problem statement upgrades this into a verified causal claim ('caused transfer failures'), and the inference adds an unsupported specific mechanism ('locked transaction table' and 'timeouts') that is not present in the provided ledger excerpts. Those are material factual/mechanistic additions beyond the evidence, so the output is only partially grounded.",
+        "cross_source_reasoning": "The recommendation appropriately connects telemetry evidence (failures spike at 00:00) with engineering context (Jira maintenance vacuum schedule conflict) to form a coherent cross-system explanation. Given only PostHog and Jira are available, it stays within source boundaries and does not fabricate Zendesk evidence.",
+        "contradiction_handling": "There is no visible contradictory evidence in the ledger. The output does not invent conflicts and presents a consistent story across the two available sources. Under the rubric, correctly recognizing a consistent evidence set merits the top score.",
+        "causal_discipline": "The output materially overstates causality. The problem statement uses unhedged causal language ('caused transfer failures'), and the inference presents a specific mechanism as though established, despite the ledger only showing temporal coincidence and a Jira-noted schedule conflict. A disciplined version would phrase this as 'consistent with' or 'plausibly explains' and keep the exact lock/time-out mechanism as a hypothesis unless directly evidenced.",
+        "recommendation_defensibility": "Rescheduling the maintenance vacuum is a logical, low-risk, and actionable remediation tightly aligned to the observed midnight spike and Jira conflict. It includes a concrete success metric and a plausible operational risk. Even without full causal proof, this is a proportionate technical remediation and therefore highly defensible."
+      },
+      "identified_flaws": [
+        "Problem statement asserts a definitive cause not fully established by the ledger.",
+        "Inference invents a specific mechanism ('locked transaction table' and 'timeouts') not shown in the evidence ledger.",
+        "Confidence is stated as high despite limited direct evidence for the exact causal pathway.",
+        "No explicit limitation or open question notes the gap between schedule conflict evidence and proven root cause."
+      ],
+      "overall_mean_score": 3.2
+    },
+    {
+      "case_id": "judge_val_02",
+      "judge_run_id": "judge_frozen_val_5e1b1588",
+      "timestamp": "2026-09-16T14:16:43.021059+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 9.712,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 0,
+        "cross_source_reasoning": 0,
+        "contradiction_handling": 1,
+        "causal_discipline": 0,
+        "recommendation_defensibility": 1
+      },
+      "rationales": {
+        "groundedness": "The recommendation is pervasively unsupported by the evidence ledger. The only verified evidence is a single Jira item for iOS release notes/support excerpt. The output adds uncited facts such as version v5.1, release timing on Tuesday, Android and Web failures, all users affected, and cross-platform breakage. It also states a transfer failure conclusion not supported by the ledger. These are substantive fabricated additions, so groundedness is completely inadequate.",
+        "cross_source_reasoning": "There is no real cross-source synthesis. Only one Jira source is available, yet the recommendation asserts Android and Web failures and cross-platform effects without Zendesk or telemetry evidence. It fabricates a cross-platform conclusion instead of respecting source boundaries in a single-source investigation.",
+        "contradiction_handling": "The output does not identify or reconcile any tensions, and it even includes an empty conflicting_evidence field despite making expansive claims that would require corroboration. Since the available evidence is minimal and not actually contradictory, a strong response would have noted that no cross-platform conclusion can be drawn. The recommendation instead presents a one-sided narrative unsupported by the ledger.",
+        "causal_discipline": "The analysis makes extreme causal leaps: it states the iOS update broke transfers across Android and Web, infers that iOS code broke Android because failures also occurred on Tuesday, and hypothesizes that a shared backend microservice was destroyed. These are unhedged or wildly speculative causal claims with no supporting mechanism in the evidence. Observation, inference, and hypothesis are not disciplined in proportion to the available data.",
+        "recommendation_defensibility": "Rolling back iOS to fix alleged Android failures is not defensible given the evidence. The action is weakly connected to the verified ledger, high-risk relative to certainty, and does not address the core uncertainty that no cross-platform failure evidence was gathered. The included risk acknowledges the action may do nothing, underscoring that the recommendation is not evidence-informed."
+      },
+      "identified_flaws": [
+        "Fabricates cross-platform transfer failures despite having only a single Jira release-notes entry.",
+        "Introduces unsupported specifics such as version v5.1, Tuesday timing, and 'all mobile and web users' affected.",
+        "Asserts Android and Web impact without Zendesk, telemetry, or additional engineering evidence.",
+        "Makes invalid causal claim that iOS code broke Android based solely on temporal coincidence.",
+        "Hypothesis about a destroyed shared backend microservice is ungrounded and sensationalized.",
+        "Recommendation to roll back iOS is disproportionate and not logically supported by the evidence.",
+        "Uses high confidence despite extremely sparse and non-diagnostic evidence.",
+        "Fails to respect source boundaries in a single-source investigation."
+      ],
+      "overall_mean_score": 0.4
+    },
+    {
+      "case_id": "judge_val_03",
+      "judge_run_id": "judge_frozen_val_db903605",
+      "timestamp": "2026-09-16T14:16:52.733829+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 10.475,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 2,
+        "cross_source_reasoning": 4,
+        "contradiction_handling": 4,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 3
+      },
+      "rationales": {
+        "groundedness": "The core quantitative observations are grounded in the ledger: UK driving license latency at 48h and EU passport latency at 6m are directly supported by led_001. However, the recommendation introduces unsupported factual additions as if established: 'strictly confined' is stronger than the single comparison in evidence, 'UK customer onboarding backlog increasing' is not shown in the ledger, and the inference that the 'UK DVLA database API is experiencing elevated latency' has no direct support from telemetry or engineering evidence. These ungrounded additions materially extend beyond the available evidence, preventing a higher score.",
+        "cross_source_reasoning": "Only one verified source is available in this investigation: PostHog telemetry. The output stays within that source boundary and does not fabricate Zendesk or Jira corroboration. Given the missing multi-source evidence, respecting source limits while drawing a narrow directional conclusion is fully appropriate under the rubric.",
+        "contradiction_handling": "There is no contradictory evidence in the ledger. The output does not need to reconcile conflicting systems here, and it does not invent false conflicts. Since the evidence is internally consistent and single-source, clean handling merits the top score.",
+        "causal_discipline": "The factual observations are properly empirical, but the analysis overreaches causally in key places. 'UK DVLA database API is experiencing elevated latency' is presented as an inference, yet it is a specific mechanism not supported by engineering evidence, support tickets, or direct provider logs. The problem statement's 'strictly confined' and the operational framing of a growing backlog also overstate what the telemetry alone establishes. The manual-queue hypothesis is at least framed as a hypothesis, but the overall output still collapses correlation into a fairly specific causal story without sufficient evidence.",
+        "recommendation_defensibility": "The recommended temporary manual verification queue for UK driving licenses is logical, targeted, and proportionate to the observed severe latency gap. It includes a concrete success metric and a plausible operational risk. The main weakness is that the action is framed on limited evidence without explicit uncertainty handling or validation steps, and the recommendation type says 'investigate_further' while the action is already a concrete intervention. Still, as a low-risk mitigation for a clearly degraded segment, it is defensible."
+      },
+      "identified_flaws": [
+        "States the issue is 'strictly confined' to UK driving licenses despite only having evidence comparing UK driving licenses with EU passports.",
+        "Claims 'UK customer onboarding backlog increasing' without ledger support.",
+        "Infers a specific root cause ('UK DVLA database API is experiencing elevated latency') with no supporting engineering or provider evidence.",
+        "Does not acknowledge source limitations or uncertainty around whether the issue is document-type-specific, country-specific, vendor-specific, or workflow-specific.",
+        "Recommendation type is somewhat inconsistent with the concrete operational action proposed."
+      ],
+      "overall_mean_score": 3.0
+    },
+    {
+      "case_id": "judge_val_04",
+      "judge_run_id": "judge_frozen_val_d8e2bdb8",
+      "timestamp": "2026-09-16T14:17:03.209017+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 10.894,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 3,
+        "cross_source_reasoning": 4,
+        "contradiction_handling": 4,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 4
+      },
+      "rationales": {
+        "groundedness": "Most core facts are directly supported: Zendesk shows 4 tickets on expired ID rejection and PostHog shows a 99.88% overall pass rate. The statement that the issue is 'isolated to expired document submissions' is directionally supported by the limited ticket evidence, but it slightly overstates scope because the ledger does not prove all failures are expired IDs, only that 4 tickets were. The 0.12% failure rate is a legitimate arithmetic complement of the pass rate, so it is acceptable derived synthesis rather than fabrication.",
+        "cross_source_reasoning": "The recommendation appropriately combines the two available sources: support tickets identify the complaint type while telemetry shows overall KYC performance remains very high. Given only Zendesk and PostHog evidence are available, the analysis stays within source boundaries and uses them coherently to answer whether failures are widespread or isolated.",
+        "contradiction_handling": "There is no meaningful contradiction in the available evidence. The support tickets indicate a small set of expired-ID rejections, and telemetry indicates an overall 99.88% pass rate. The recommendation correctly treats these signals as consistent rather than inventing conflict.",
+        "causal_discipline": "The output shows some separation between observations and hypothesis, but it materially overreaches in the inference 'No systemic OCR or verification bug exists.' The evidence supports that widespread failure is unlikely, but it does not establish the nonexistence of any systemic bug. That is too definitive given only one ticket cluster and one aggregate pass-rate metric. The hypothesis about an expiration warning is appropriately framed, but the core inference is over-asserted.",
+        "recommendation_defensibility": "The action is proportionate and low risk: avoid changing the backend verification pipeline and instead add a client-side expiration pre-check. This directly addresses the observed issue pattern, aligns with the high pass rate, and includes a concrete success metric. While the metric could be better tied to observed baseline expired-ID submission rate rather than a threshold chosen without explicit evidence, the recommendation remains highly defensible."
+      },
+      "identified_flaws": [
+        "Overstates certainty by claiming failures are isolated to expired document submissions rather than saying available evidence suggests that pattern.",
+        "Inference 'No systemic OCR or verification bug exists' is stronger than the evidence supports.",
+        "Success metric threshold for expired ID submission rate (< 0.05%) is not grounded in a shown baseline from the ledger.",
+        "Confidence labeled 'high' is somewhat stronger than warranted given only two evidence points and no engineering-source validation."
+      ],
+      "overall_mean_score": 3.4
+    },
+    {
+      "case_id": "judge_val_05",
+      "judge_run_id": "judge_frozen_val_8fcde2ac",
+      "timestamp": "2026-09-16T14:17:14.103086+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 12.731,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 2,
+        "cross_source_reasoning": 4,
+        "contradiction_handling": 4,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 3
+      },
+      "rationales": {
+        "groundedness": "The core direction is plausible and partially supported by the ledger: 45 complaints are directly grounded, and the 1:1 settlement match supports the claim that completed settlements are not duplicated. However, the recommendation elevates several unverified specifics into factual observations or executive framing: the existence of an 'initial temporary auth hold,' that customer banking apps are showing both a pending authorization and a posted transaction, that affected users are specifically those whose issuers do not collapse holds, and especially that the hold will drop in '48 hours.' Those details are not present in the provided evidence ledger. Because these additions materially shape the diagnosis and recommendation, this falls below a 3.",
+        "cross_source_reasoning": "The output correctly synthesizes the two available sources without inventing a third source. It links Zendesk complaints about duplicate charges with telemetry showing exact 1:1 settlement, yielding a coherent explanation that perceived duplication may differ from actual settlement duplication. Given the limited evidence set, staying within source boundaries while connecting customer-reported symptoms to backend financial reality is strong cross-source reasoning.",
+        "contradiction_handling": "There is a clear tension in the evidence\u2014customers report duplicate charges while telemetry shows exact 1:1 settlement\u2014and the SUT attempts to reconcile that tension by proposing a display/authorization-hold explanation rather than asserting actual double charging. That is the right contradiction to address. The reconciliation is somewhat under-evidenced in specifics, but contradiction handling itself is strong because it does not ignore the mismatch between perception and ledger reality.",
+        "causal_discipline": "The output shows some epistemic separation, placing the display mechanism in inferences and the mitigation outcome in hypotheses. However, it still overstates an unproven mechanism in factual and executive language: 'Pre-authorization hold and settlement appear as duplicate charges' and 'Bank ledger telemetry confirms single settlement with initial temporary auth hold.' The telemetry evidence supports single settlement, but not the specific auth-hold mechanism as confirmed fact. The recommendation is also framed with high confidence despite limited evidence. This is material causal/diagnostic overreach, though not severe enough for a 1.",
+        "recommendation_defensibility": "The recommendation is logical, low-risk, and proportionate to the available evidence: clarifying temporary authorization behavior is a plausible PM action when complaints conflict with settlement telemetry. It includes a success metric and a realistic risk. The main weakness is that the action embeds unsupported specifics ('48 hours') and labels the recommendation type as 'investigate_further' while actually prescribing a concrete fix without first validating the auth-hold hypothesis. A more defensible version would pair messaging changes with validation against issuer behavior and receipt copy testing."
+      },
+      "identified_flaws": [
+        "Presents the authorization-hold mechanism as confirmed fact even though the ledger only shows complaints and a 1:1 settlement match.",
+        "Introduces unsupported specifics not found in evidence, including 'temporary auth hold,' affected issuer behavior, and the exact '48 hours' release timeline.",
+        "Factual observation claims more than telemetry proves by saying the bank ledger confirms an auth hold, not just single settlement.",
+        "Uses high confidence despite meaningful residual uncertainty about the true customer-visible mechanism.",
+        "Recommendation type says 'investigate_further' but the body effectively recommends immediate remediation without explicitly validating the hypothesis first.",
+        "Success metric of 90% reduction may be overly aggressive and is not justified by evidence."
+      ],
+      "overall_mean_score": 3.0
+    },
+    {
+      "case_id": "judge_val_06",
+      "judge_run_id": "judge_frozen_val_6bdcd2d1",
+      "timestamp": "2026-09-16T14:17:26.834519+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 11.161,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 2,
+        "cross_source_reasoning": 4,
+        "contradiction_handling": 4,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 4
+      },
+      "rationales": {
+        "groundedness": "The core direction is plausible and partially supported by the ledger: the PostHog evidence supports a success-rate drop to 41%, and Jira supports that an OAuth client secret expired. However, the recommendation adds multiple material facts not present in the evidence ledger: the 96% baseline, the exact time '08:00', the attribution to an 'Open Banking aggregator', the claim that funding volume decreased by '$1.2M over 6 hours', and the stronger factual phrasing in the problem statement that token expiration caused the drop. Those unsupported additions materially reduce groundedness.",
+        "cross_source_reasoning": "This is a strong two-source synthesis given the available evidence. It connects telemetry showing the instant-fund success-rate drop with engineering evidence of credential expiration to form a coherent explanation. No customer-support source is available, and the recommendation does not invent Zendesk evidence, which is appropriate.",
+        "contradiction_handling": "The available ledger does not present contradictory signals. The output does not invent false conflicts and remains internally consistent between the telemetry drop and the Jira incident. Given the evidence set, recognizing a consistent story is appropriate.",
+        "causal_discipline": "The analysis shows some structure by placing the mechanism under inferences and remediation under hypotheses/recommendation, but it materially overstates causality in several places. The problem statement unhedgedly says token expiration caused the drop, and the hypothesis says rotating credentials will immediately restore deposits. With only a telemetry drop and a Jira issue, that is a plausible mechanism but not conclusively established. More disciplined phrasing such as 'consistent with' or 'likely explains' would have supported a higher score.",
+        "recommendation_defensibility": "The recommendation is logical, actionable, and proportionate to the evidence: rotate the OAuth secret and add expiration alerting. It directly addresses the engineering issue surfaced in Jira and is paired with clear success metrics and a concrete operational risk around propagation delay. Even without absolute causal certainty, this is a defensible low-risk remediation."
+      },
+      "identified_flaws": [
+        "Unsupported baseline claim that success rate dropped from 96%; ledger only supports drop to 41%.",
+        "Unsupported exact timestamp 'at 08:00'.",
+        "Unsupported quantified business impact '$1.2M over 6 hours'.",
+        "Unsupported specificity that the issue involved an 'Open Banking aggregator' rather than simply an OAuth client secret expiration.",
+        "Problem statement presents causation as established fact rather than qualified inference.",
+        "Hypothesis overstates certainty by claiming credential rotation will 'immediately' restore deposits."
+      ],
+      "overall_mean_score": 3.2
+    },
+    {
+      "case_id": "judge_val_07",
+      "judge_run_id": "judge_frozen_val_b23736cc",
+      "timestamp": "2026-09-16T14:17:37.995845+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 11.16,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 1,
+        "cross_source_reasoning": 1,
+        "contradiction_handling": 2,
+        "causal_discipline": 0,
+        "recommendation_defensibility": 1
+      },
+      "rationales": {
+        "groundedness": "The only verified evidence is a Jira release note for a biller redesign. The recommendation adds multiple unsupported factual claims: that transaction reliability was destroyed, that all users were affected, that the UI launched on Wednesday, and that there were bill payment processing timeouts. None of those facts are established in the ledger. The output does cite a real ledger item, but the substantive diagnostic claims are not grounded in it.",
+        "cross_source_reasoning": "There is only one source in evidence (Jira), and the recommendation improperly leaps from a release note to customer and backend outcome claims without telemetry or support evidence. In a single-source case, strong performance would respect source boundaries; this output instead invents cross-system conclusions about timeouts and reliability.",
+        "contradiction_handling": "No contradictory evidence is actually present in the ledger, so the system should simply avoid inventing conflict and stay within the available evidence. It does not fabricate explicit contradiction resolution, but it also fails to acknowledge the severe evidentiary gap between a release note and claims of reliability collapse. Because there is no direct contradiction to resolve, this is not a total failure, but it is only partially adequate.",
+        "causal_discipline": "The output shows blatant causal overreach. It asserts that CSS changes caused backend timeouts and that reverting font and color changes will fix server timeouts, despite having only a release note as evidence. It collapses speculation into fact in both the executive framing and the inference, with no qualifying language and no supporting mechanism from engineering, telemetry, or support data.",
+        "recommendation_defensibility": "An immediate UI rollback is a high-confidence, high-impact action that is not justified by the evidence provided. The recommendation is weakly connected to the actual ledger and does not establish that the redesign caused timeouts or that rollback is the right remediation. The listed metric and risk are superficially relevant, but the action is not proportionate to the evidentiary basis."
+      },
+      "identified_flaws": [
+        "Claims widespread reliability destruction without ledger support.",
+        "Asserts all bill payment users were affected without evidence.",
+        "Infers timeouts existed and began on Wednesday, but no timeout evidence is in the ledger.",
+        "Makes an unsupported causal leap from UI/CSS changes to backend server timeouts.",
+        "Presents speculative mechanism as fact rather than qualified inference or hypothesis.",
+        "Fails to respect source boundaries in a single-source investigation.",
+        "Recommends immediate rollback despite lacking telemetry, support, or engineering evidence tying the redesign to the issue.",
+        "Uses high confidence despite extremely weak evidentiary support."
+      ],
+      "overall_mean_score": 1.0
+    },
+    {
+      "case_id": "judge_val_08",
+      "judge_run_id": "judge_frozen_val_f2356488",
+      "timestamp": "2026-09-16T14:17:49.156510+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 9.115,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 2,
+        "cross_source_reasoning": 4,
+        "contradiction_handling": 4,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 4
+      },
+      "rationales": {
+        "groundedness": "The core quantitative distinction is supported by the ledger: PowerGrid performs materially worse than other providers (92% failure vs 99.4%). However, the recommendation adds unsupported specifics as facts, including '504 gateway timeout' and 'API downtime,' neither of which appears in the evidence ledger. It also names specific other providers ('National Electric and GreenEnergy') without those names being present in the provided ledger excerpt. These are material factual additions, so the output cannot be considered fully grounded.",
+        "cross_source_reasoning": "Only one verified source is available in this investigation: a PostHog ledger entry. The recommendation stays largely within that source boundary for the main diagnostic conclusion that failures are concentrated in PowerGrid rather than affecting all providers. It does not fabricate Zendesk or Jira corroboration, so under the rubric this is excellent handling for a single-source case.",
+        "contradiction_handling": "There is no contradictory evidence in the ledger. The recommendation does not need to reconcile cross-system tension because none is presented. It correctly reflects a consistent signal that one provider is underperforming while others are not.",
+        "causal_discipline": "The output overreaches causally by asserting that failures are 'exclusive to PowerGrid Co API downtime' and that the issue is 'external downtime on PowerGrid Co's vendor gateway' based only on a performance gap metric. The evidence supports that the problem is concentrated in PowerGrid, but not the precise causal mechanism, ownership, or outage mode. The maintenance-mode hypothesis is reasonable, but the core framing collapses inference into fact too aggressively.",
+        "recommendation_defensibility": "The recommended action is proportionate and practical given the evidence: mark PowerGrid temporarily unavailable and notify affected customers. This directly addresses the observed concentration of failures and is a low-risk mitigation even without full root-cause certainty. Success metrics and risks are included; while the metric is somewhat narrow, the action is still highly defensible."
+      },
+      "identified_flaws": [
+        "Introduces unsupported technical detail: '504 gateway timeout.'",
+        "Attributes the issue definitively to 'API downtime' and an 'external vendor gateway' without direct evidence.",
+        "Names specific comparison providers not shown in the provided ledger excerpt.",
+        "Problem statement uses unhedged causal language stronger than the evidence supports.",
+        "Recommendation type is labeled 'investigate_further' even though the actual recommendation is an operational mitigation; taxonomy may be misaligned."
+      ],
+      "overall_mean_score": 3.2
+    },
+    {
+      "case_id": "judge_val_09",
+      "judge_run_id": "judge_frozen_val_1b048cbd",
+      "timestamp": "2026-09-16T14:17:58.271940+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 9.838,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 1,
+        "cross_source_reasoning": 1,
+        "contradiction_handling": 2,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 2
+      },
+      "rationales": {
+        "groundedness": "Only one fact is supported by the ledger: 8 Zendesk tickets on mobile top-up failure. The statement that telco gateway/adapter logs are missing or wiped is not supported anywhere in the provided evidence ledger, yet it is presented as a factual observation and drives the entire problem statement and recommendation. This is a material unsupported factual addition, not a minor embellishment.",
+        "cross_source_reasoning": "The available evidence is single-source Zendesk only. A high score in a single-source case would require respecting source boundaries. Instead, the recommendation imports engineering-system context about wiped adapter logs without evidence, effectively forcing an unsupported cross-system narrative rather than staying within the demonstrated Zendesk boundary.",
+        "contradiction_handling": "There is no actual contradictory evidence in the ledger; the evidence is sparse and consistent. The output does not invent explicit conflicts, which is a positive. However, it also introduces an unsupported missing-logs premise and does not clearly acknowledge that the core uncertainty comes from lack of engineering evidence rather than from resolved tension in the available record.",
+        "causal_discipline": "The inferences and hypotheses are somewhat qualified, and the confidence is low, which shows some epistemic restraint. However, the problem statement makes a definitive causal framing that the inability to establish root cause is due to wiped adapter logs, despite no evidence that logs were wiped. That collapses an unverified mechanism into asserted fact. The rate-limit/token-expiration ideas are correctly framed as hypotheses, but they are weakly rooted in the available evidence.",
+        "recommendation_defensibility": "Restoring log persistence and capturing error codes is a generally sensible investigative action under uncertainty, and the success metrics are operationally relevant. But because the central premise of missing/wiped logs is not evidenced, the recommendation is only partially defensible from the ledger provided. It is plausible, low-risk, and actionable, yet insufficiently tied to verified evidence."
+      },
+      "identified_flaws": [
+        "Asserts missing/wiped telco adapter logs as fact without any supporting ledger evidence.",
+        "Problem statement is built around an unverified engineering condition rather than the only verified signal: 8 support tickets.",
+        "Introduces unsupported cross-system narrative despite single-source evidence only.",
+        "Presents 'Telco gateway logs are missing' under factual_observations instead of clearly marking it as an assumption or open question.",
+        "Hypotheses about rate limits or token expiration are speculative and not meaningfully anchored in the retrieved evidence.",
+        "Recommendation may be sensible operationally, but it is not fully justified by the verified ledger."
+      ],
+      "overall_mean_score": 1.6
+    },
+    {
+      "case_id": "judge_val_10",
+      "judge_run_id": "judge_frozen_val_e38629ef",
+      "timestamp": "2026-09-16T14:18:08.110444+00:00",
+      "model": "openai/gpt-5.4",
+      "actual_provider": "OpenRouter / OpenAI",
+      "latency_seconds": 9.29,
+      "repair_attempts": 0,
+      "scores": {
+        "groundedness": 2,
+        "cross_source_reasoning": 3,
+        "contradiction_handling": 3,
+        "causal_discipline": 2,
+        "recommendation_defensibility": 3
+      },
+      "rationales": {
+        "groundedness": "The core direction is partially supported by the ledger: complaints mention fees, churn cohorts had >60s latency, and non-delayed cohorts saw +12% transfer volume. However, the recommendation introduces material unsupported facts as verified observations, including that fees increased by exactly 10 cents and that the increase occurred on the 1st of the month. It also states in the problem framing that fee restructuring did not cause churn, which goes beyond what the ledger directly establishes.",
+        "cross_source_reasoning": "The analysis does connect Zendesk fee complaints with PostHog latency and non-delayed cohort volume, forming a coherent multi-source narrative that customer-reported fee frustration does not align with the stronger telemetry signal around delay. The main weakness is that it lacks engineering-system evidence and does not deeply connect the latency signal to a specific operational or technical mechanism.",
+        "contradiction_handling": "There is a real tension between customer complaints about fees and telemetry suggesting healthy volume among non-delayed cohorts plus elevated latency among churn cohorts. The recommendation recognizes and resolves that tension by treating fees as salient complaints but latency as the stronger churn correlate. The handling is reasonable, though somewhat one-sided because it dismisses fee causality too definitively rather than acknowledging possible mixed effects.",
+        "causal_discipline": "The output materially overstates causality. The ledger supports that latency is associated with churn cohorts and that non-delayed cohorts had higher volume, but the recommendation asserts that fee restructuring did not cause churn and that latency was the true churn driver. Those are stronger causal claims than the evidence warrants. A more disciplined framing would say latency plausibly explains churn better than fee complaints, while preserving uncertainty about whether fees contributed for some users.",
+        "recommendation_defensibility": "The recommended action is logical and proportionate: avoid a potentially unnecessary fee rollback and prioritize fixing latency. It includes a concrete success metric and a meaningful risk. The main limitation is that the recommendation is built on overstated certainty, so a stronger version would pair the latency work with continued monitoring of fee-related sentiment and churn segmentation rather than flatly maintaining the fee schedule with high confidence."
+      },
+      "identified_flaws": [
+        "Unsupported factual additions: exact fee increase amount ('10 cents') and timing ('1st of the month') are not present in the ledger.",
+        "Problem statement makes a definitive causal negation ('did not cause user churn') not established by the evidence.",
+        "Inference uses overly certain causal language ('true churn driver') from correlational evidence.",
+        "Confidence is overstated as high given the limited evidence and lack of direct causal isolation.",
+        "Recommendation does not include a contingency plan or monitoring path for fee-related churn if latency fixes do not fully resolve retention."
+      ],
+      "overall_mean_score": 2.6
+    }
+  ]
+}

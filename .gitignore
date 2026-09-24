@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Testing and quality tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Node.js & Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+playwright-report/
+test-results/
+/frontend/.artifacts/
+.turbo/
+.vercel/
+
+# Local runtime output
+*.log
+/.codex-*.log
+
+# Local agent instructions and working notes
+/AGENTS.md
+/walkthrough.md
+
+# Private portfolio preparation
+/docs/project/05_AI_PM_INTERVIEW_GUIDE.md
+
+# Generated or superseded evaluation work products
+/evaluations/scratch/
+/evaluations/runs/*checkpoint*.json
+/evaluations/human_ratings/

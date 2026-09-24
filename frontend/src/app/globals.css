@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #f4f5f2;
+  --bg-surface: #fbfcf9;
+  --text-primary: #171915;
+  --text-secondary: #62675f;
+  --border-default: #dfe2db;
+  --border-focus: #171915;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-inter, 'Inter', system-ui, -apple-system, sans-serif);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: rgba(200, 244, 107, 0.25);
+}
+
+.marketing-page {
+  --marketing-ink: #171915;
+  --marketing-muted: #62675f;
+  --marketing-line: #dfe2db;
+  --marketing-panel: #fbfcf9;
+  --marketing-accent: #c8f46b;
+  --marketing-accent-strong: #a8dc42;
+}
+
+.marketing-grid {
+  background-image:
+    linear-gradient(to right, rgba(23, 25, 21, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(23, 25, 21, 0.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.marketing-dot-grid {
+  background-image: radial-gradient(rgba(23, 25, 21, 0.14) 0.8px, transparent 0.8px);
+  background-size: 16px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-page *,
+  .marketing-page *::before,
+  .marketing-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}

@@ -1,0 +1,192 @@
+[
+  {
+    "scenario_id": "scenario_1",
+    "name": "Surge in Failed Transfers",
+    "query": "Why are customers reporting a surge in failed transfers this week?",
+    "investigation_id": "inv_p12_scenario_1_20260917_100756",
+    "status": "completed",
+    "runtime_s": 162.05,
+    "total_llm_calls": 16,
+    "total_tool_calls": 16,
+    "llm_calls_breakdown": {
+      "planner": 1,
+      "research": 4,
+      "analytics": 3,
+      "engineering": 3,
+      "assessment": 1,
+      "pm_synthesis": 1,
+      "critic": 2,
+      "pm_revision": 1
+    },
+    "tool_calls_breakdown": {
+      "research": 7,
+      "analytics": 4,
+      "engineering": 5
+    },
+    "provider_cost": 0.071339,
+    "critic_validation": {
+      "critic_model": "openai/gpt-5.4-mini",
+      "critic_outcome": "REVISE",
+      "critic_issue_count": 5,
+      "issue_categories": [
+        "magnitude_gap",
+        "unsupported_claim",
+        "confidence_mismatch",
+        "segmentation_gap",
+        "missing_evidence"
+      ],
+      "revision_triggered": true,
+      "final_revision_count": 1
+    },
+    "evidence_metrics": {
+      "total_ledger_entries": 15,
+      "total_citations": 12,
+      "valid_citations": 12,
+      "hallucinated_citations": 0,
+      "citation_validity_ratio": 1.0,
+      "epistemic_separation_valid": true
+    },
+    "recommendation_summary": {
+      "recommendation_type": "investigate_further",
+      "confidence": "medium",
+      "problem_statement": "A small number of customers have reported failed transfers or failed transactions in the retrieved support dataset, while current analytics queries re...",
+      "recommendation": "Investigate further with two parallel tracks. First, validate observability health before drawing conclusions from the analytics gap: confirm whether ...",
+      "facts_count": 5,
+      "inferences_count": 3,
+      "hypotheses_count": 4,
+      "likely_causes_count": 4,
+      "conflicting_evidence_count": 2
+    },
+    "historical_baseline": {
+      "investigation_id": "inv_20260917_075720_cb2741",
+      "runtime_s": 558.08,
+      "llm_calls": 21,
+      "tool_calls": 26,
+      "provider_cost": 0.788899,
+      "status": "historical_verified"
+    }
+  },
+  {
+    "scenario_id": "scenario_2",
+    "name": "Checkout Conversion Drop",
+    "query": "Why did checkout conversion drop in release 2.4?",
+    "investigation_id": "inv_p12_scenario_2_20260917_101046",
+    "status": "completed",
+    "runtime_s": 201.43,
+    "total_llm_calls": 18,
+    "total_tool_calls": 16,
+    "llm_calls_breakdown": {
+      "planner": 1,
+      "research": 3,
+      "analytics": 6,
+      "engineering": 3,
+      "assessment": 1,
+      "pm_synthesis": 1,
+      "critic": 2,
+      "pm_revision": 1
+    },
+    "tool_calls_breakdown": {
+      "research": 5,
+      "analytics": 7,
+      "engineering": 4
+    },
+    "provider_cost": 0.149295,
+    "critic_validation": {
+      "critic_model": "openai/gpt-5.4-mini",
+      "critic_outcome": "REVISE",
+      "critic_issue_count": 7,
+      "issue_categories": [
+        "unsupported_claim",
+        "magnitude_gap",
+        "unsupported_claim",
+        "confidence_mismatch",
+        "alternative_explanation",
+        "missing_evidence",
+        "recommendation_mismatch"
+      ],
+      "revision_triggered": true,
+      "final_revision_count": 1
+    },
+    "evidence_metrics": {
+      "total_ledger_entries": 10,
+      "total_citations": 10,
+      "valid_citations": 10,
+      "hallucinated_citations": 0,
+      "citation_validity_ratio": 1.0,
+      "epistemic_separation_valid": true
+    },
+    "recommendation_summary": {
+      "recommendation_type": "investigate_further",
+      "confidence": "medium",
+      "problem_statement": "The investigation question asks whether checkout conversion changed after release 2.4, but the current evidence cannot confirm or quantify any convers...",
+      "recommendation": "Investigate further with two explicitly parallel and equally important workstreams. First, restore analytics queryability and verify telemetry integri...",
+      "facts_count": 4,
+      "inferences_count": 4,
+      "hypotheses_count": 3,
+      "likely_causes_count": 2,
+      "conflicting_evidence_count": 2
+    },
+    "historical_baseline": null
+  },
+  {
+    "scenario_id": "scenario_3",
+    "name": "Mobile EUR Transfer Delays",
+    "query": "Why are mobile EUR transfers experiencing extended delays?",
+    "investigation_id": "inv_p12_scenario_3_20260917_101415",
+    "status": "completed",
+    "runtime_s": 205.61,
+    "total_llm_calls": 16,
+    "total_tool_calls": 15,
+    "llm_calls_breakdown": {
+      "planner": 1,
+      "research": 3,
+      "analytics": 4,
+      "engineering": 3,
+      "assessment": 1,
+      "pm_synthesis": 1,
+      "critic": 2,
+      "pm_revision": 1
+    },
+    "tool_calls_breakdown": {
+      "research": 5,
+      "analytics": 4,
+      "engineering": 6
+    },
+    "provider_cost": 0.156095,
+    "critic_validation": {
+      "critic_model": "openai/gpt-5.4-mini",
+      "critic_outcome": "REVISE",
+      "critic_issue_count": 6,
+      "issue_categories": [
+        "unsupported_claim",
+        "causal_overreach",
+        "missing_evidence",
+        "contradiction",
+        "segmentation_gap",
+        "confidence_mismatch"
+      ],
+      "revision_triggered": true,
+      "final_revision_count": 1
+    },
+    "evidence_metrics": {
+      "total_ledger_entries": 13,
+      "total_citations": 11,
+      "valid_citations": 11,
+      "hallucinated_citations": 0,
+      "citation_validity_ratio": 1.0,
+      "epistemic_separation_valid": true
+    },
+    "recommendation_summary": {
+      "recommendation_type": "investigate_further",
+      "confidence": "medium",
+      "problem_statement": "We cannot verify whether mobile EUR transfers are currently experiencing extended delays because the available analytics queries returned no usable ti...",
+      "recommendation": "Investigate further before prioritizing any product or remediation change. First, restore or correct analytics for the mobile EUR transfer flow so lif...",
+      "facts_count": 5,
+      "inferences_count": 3,
+      "hypotheses_count": 3,
+      "likely_causes_count": 2,
+      "conflicting_evidence_count": 2
+    },
+    "historical_baseline": null
+  }
+]

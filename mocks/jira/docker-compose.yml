@@ -1,0 +1,10 @@
+services:
+  mockserver:
+    image: mockserver/mockserver:7.6.0
+    container_name: pocket-mockserver-jira
+    ports:
+      - "${MOCKSERVER_HOST_PORT:-1081}:1080"
+    environment:
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+      MOCKSERVER_LOG_LEVEL: INFO
+    restart: unless-stopped

@@ -1,0 +1,252 @@
+[
+  {
+    "case_id": "judge_dev_01",
+    "scores": {
+      "groundedness": 2,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 3,
+      "recommendation_defensibility": 4
+    },
+    "rationales": {
+      "groundedness": "The core narrative is mostly anchored in the ledger: Zendesk shows a pending transfer complaint, PostHog shows p95 latency >45s with 98.8% success, and Jira documents a partner switch webhook timeout bug. However, there are material unsupported factual additions presented as fact: 'surge in support tickets' is not evidenced beyond a single Zendesk ticket, 'tickets complain of transfers pending for hours' overstates the ledger's single pending-transfer report, and 'affected_users' specifying Bank A and Bank B has no ledger support. Those additions prevent a higher score.",
+      "cross_source_reasoning": "This is strong multi-source synthesis. It connects customer-reported pending transfers (Zendesk), backend performance/success telemetry (PostHog), and an engineering defect involving webhook timeouts (Jira) into a coherent explanation that perceived failures may reflect delayed status synchronization rather than failed settlement. The synthesis respects source boundaries and does not fabricate extra system evidence.",
+      "contradiction_handling": "The recommendation appropriately reconciles the key tension in the evidence: customers report failed or pending transfers while telemetry shows a 98.8% success rate. The inference that transfers are settling but status synchronization is delayed is a plausible resolution supported by the Jira timeout bug. It does not invent additional conflicts, and it handles the available contradiction cleanly.",
+      "causal_discipline": "The body generally separates facts, inference, and hypothesis appropriately. The status-sync explanation is presented under 'inferences,' and the remediation outcome under 'hypotheses.' However, the executive framing is more definitive than the evidence warrants: 'Partner switch callback timeouts causing perceived transfer failures' is an unhedged causal statement, and 'Fixing switch webhook will eliminate customer transfer delay reports' is stronger than the available evidence supports. Given the strong temporal/mechanical match, this is still good rather than poor.",
+      "recommendation_defensibility": "The recommendation is actionable, proportionate, and well aligned to the evidence. Deploying the timeout fix directly targets the Jira-documented defect, and adding a pending-status banner is a sensible low-risk mitigation for customer perception while the technical issue is addressed. Success metrics are concrete and relevant, and the implementation risk is acknowledged."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 3,
+      "recommendation_defensibility": 4
+    },
+    "latency": 9.541
+  },
+  {
+    "case_id": "judge_dev_02",
+    "scores": {
+      "groundedness": 1,
+      "cross_source_reasoning": 1,
+      "contradiction_handling": 2,
+      "causal_discipline": 0,
+      "recommendation_defensibility": 0
+    },
+    "rationales": {
+      "groundedness": "The only verified evidence is a single Jira item noting 'Switch X timeout.' That supports the narrow observation that at least one timeout issue existed. The recommendation adds multiple unsupported factual claims as if verified truth: 'complete collapse of all platform payments,' 'all platform users across all banks,' and 'every payment failure.' Those material expansions are not grounded in the ledger. While not fully fabricated end-to-end, the core factual framing is largely unsupported by the available evidence.",
+      "cross_source_reasoning": "The investigation had only one source available (Jira), so a strong evaluation would stay within that boundary and avoid pretending there is broader corroboration. Instead, it extrapolates a single engineering ticket into a platform-wide conclusion without customer-support or telemetry evidence. That is not valid cross-source synthesis; it is an invalid forced generalization from one source.",
+      "contradiction_handling": "There is no explicit contradictory evidence in the ledger, so the system was not required to reconcile source conflicts. However, it also failed to acknowledge major uncertainty created by the absence of corroborating telemetry or support evidence. Because there was no direct contradiction to resolve, this is not a total failure, but the output presents an overconfident one-sided narrative despite sparse evidence.",
+      "causal_discipline": "The output shows blatant causal overreach. It converts a single observed timeout into definitive claims that Switch X 'caused a complete collapse of all platform payments' and 'caused every payment failure,' then predicts that replacing Switch X will fix '100%' of issues. These are unhedged causal and magnitude claims far beyond the evidence, and they collapse observation, inference, and hypothesis into asserted fact.",
+      "recommendation_defensibility": "Immediately terminating a partner contract platform-wide is a destructive, high-risk action that is wildly disproportionate to the evidence. The recommendation is not aligned with the uncertainty in the investigation, lacks staged mitigation, and ignores the stated risk of extreme disruption without a backup switch. A defensible action would have been targeted investigation, incident scoping, failover validation, or monitoring\u2014not immediate contract termination."
+    },
+    "human_ref_scores": {
+      "groundedness": 1,
+      "cross_source_reasoning": 1,
+      "contradiction_handling": 0,
+      "causal_discipline": 0,
+      "recommendation_defensibility": 1
+    },
+    "latency": 10.725
+  },
+  {
+    "case_id": "judge_dev_03",
+    "scores": {
+      "groundedness": 2,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 2,
+      "recommendation_defensibility": 2
+    },
+    "rationales": {
+      "groundedness": "The output is directionally plausible but materially under-grounded because it asserts specific quantitative facts and named impacted banks as verified observations without those details appearing in the visible ledger support. The ledger only says 'Latency breakdown by bank' with a generic support excerpt label, not the actual numbers 'p95 latency is 52s' or 'under 2s' nor the identities Bank A/B/C/D. The recommendation also adds a specific mechanism ('partner switch') not evidenced in the ledger.",
+      "cross_source_reasoning": "Only one verified source is available in the ledger (PostHog). The recommendation stays within that source boundary rather than inventing Zendesk or Jira evidence. Given the investigation context is effectively single-source, respecting source limits is appropriate and merits the top score.",
+      "contradiction_handling": "There is no contradictory evidence present in the provided ledger. The output does not invent false conflicts and presents a consistent narrative based on the single available signal. In a no-conflict case, that is sufficient for a high score.",
+      "causal_discipline": "The factual observation is observational, but the analysis then moves too quickly from a latency-by-bank pattern to a specific causal attribution: 'Issue is isolated to Bank A and B routing switches' and 'Partner switch configuration is causing the delay.' With only telemetry evidence and no engineering corroboration, this is material causal overreach. The hypothesis field helps somewhat, but the inference still states a fairly specific mechanism too definitively for the evidence available.",
+      "recommendation_defensibility": "The action is somewhat aligned with the observed cohort segmentation, but it is too specific and remedial for the evidence base. Recommending a 'target partner switch routing patch' assumes the unverified root cause is correct. A more defensible recommendation would be to investigate/reroute behind a flag, validate bank-specific routing behavior, and add monitoring. Success metrics are clear, but the action is not well calibrated to the uncertainty."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 3,
+      "contradiction_handling": 3,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 4
+    },
+    "latency": 9.695
+  },
+  {
+    "case_id": "judge_dev_04",
+    "scores": {
+      "groundedness": 1,
+      "cross_source_reasoning": 1,
+      "contradiction_handling": 2,
+      "causal_discipline": 0,
+      "recommendation_defensibility": 0
+    },
+    "rationales": {
+      "groundedness": "The only verified evidence is a single Zendesk-derived fact: 3 tickets reporting a 2 cent discrepancy. While that observation is grounded, the core framing adds major unsupported factual claims such as 'catastrophic fee overcharging,' 'thousands of daily transfers,' 'platform existential legal risk,' and 'millions of users.' These are not supported by the ledger and materially alter severity.",
+      "cross_source_reasoning": "The investigation has only one source available, and a strong evaluation could have stayed within that boundary. Instead, it extrapolates a platform-wide billing failure without telemetry or engineering evidence. It does not synthesize across sources; it forces a broader conclusion absent cross-source support.",
+      "contradiction_handling": "There is no actual contradictory evidence in the ledger, so a strong response would simply preserve the limited, consistent signal. This output does not invent an explicit contradiction, but it also fails to acknowledge the tension between very limited complaint evidence and its extreme platform-wide narrative. It defaults to one-sided escalation without reconciling that gap.",
+      "causal_discipline": "The output exhibits severe causal overreach. From 3 support tickets about a 2 cent discrepancy, it declares the billing system 'systematically corrupted' and hypothesizes that 'every user is being overbilled,' while the executive framing states catastrophic overcharging as fact. Observation, inference, and hypothesis are not kept proportional to the evidence.",
+      "recommendation_defensibility": "Recommending a full halt to platform billing and refunding all historical fees is wildly disproportionate to the evidence of 3 small discrepancy tickets. The action is high-risk, weakly connected to the observed problem, and lacks calibrated next steps such as scoping, log review, reproduction, or fee-calculation audit on affected cases."
+    },
+    "human_ref_scores": {
+      "groundedness": 1,
+      "cross_source_reasoning": 1,
+      "contradiction_handling": 1,
+      "causal_discipline": 0,
+      "recommendation_defensibility": 0
+    },
+    "latency": 9.078
+  },
+  {
+    "case_id": "judge_dev_05",
+    "scores": {
+      "groundedness": 2,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 2,
+      "recommendation_defensibility": 3
+    },
+    "rationales": {
+      "groundedness": "The core factual contrast is mostly supported by the ledger: Zendesk tickets claim failure and telemetry shows 99.1% eventual settlement. However, the recommendation introduces several material unsupported additions as if established: 'within 30 minutes' is not present in the verified ledger, 'customer anxiety leads to duplicate transfer attempts' is not evidenced, and 'peak processing windows' is an invented affected-user cohort. These additions go beyond minor embellishment and prevent a higher score.",
+      "cross_source_reasoning": "The output correctly synthesizes the two available sources without inventing missing Jira evidence. It connects customer-reported failure perceptions in Zendesk with backend settlement telemetry in PostHog to frame the issue as perceived failure versus actual settlement, which is exactly the relevant cross-source reasoning for the question asked.",
+      "contradiction_handling": "There is an apparent tension in the evidence\u2014customers report failed transfers while telemetry shows very high eventual settlement\u2014and the recommendation appropriately resolves that tension as a perception/status-visibility issue rather than inventing money-loss claims. Given the limited evidence, this is a strong reconciliation of the contradiction.",
+      "causal_discipline": "The structure separates observations, inference, and hypothesis reasonably well, but the causal story is overstated relative to the evidence. The inference that users assume delay equals failure because the UI lacks an intermediate progress indicator is plausible but unsupported by direct evidence; it is presented too definitively. The 'why_it_matters' claim about duplicate transfer attempts and the implied mechanism behind the product fix are also unverified. This is meaningful causal overreach, though not extreme.",
+      "recommendation_defensibility": "Adding better real-time progress state is a logical, low-risk response to the observed perception gap and is directionally aligned to the evidence. However, the success metric is weakly grounded and likely unrealistic as stated ('duplicate transfer attempts drop by 80%'), and the recommendation is labeled 'investigate_further' despite prescribing a concrete solution without noting validation steps. Still, the action itself is proportionate and defensible."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 4
+    },
+    "latency": 10.504
+  },
+  {
+    "case_id": "judge_dev_06",
+    "scores": {
+      "groundedness": 2,
+      "cross_source_reasoning": 3,
+      "contradiction_handling": 4,
+      "causal_discipline": 2,
+      "recommendation_defensibility": 3
+    },
+    "rationales": {
+      "groundedness": "The core direction is plausible and anchored by the two ledger items: PostHog shows a 28% upload error rate and Jira documents missing client-side compression on Android. However, several material factual additions are asserted without ledger support: that drop-off 'doubled,' that failures were specifically due to timeout, that this followed a 'v4.2 release,' and that onboarding conversion dropped 14%. The affected-user narrowing to high-resolution Android camera devices is also an inference presented as fact. These unsupported additions prevent a higher score.",
+      "cross_source_reasoning": "The recommendation does meaningfully connect telemetry (28% upload error rate) with engineering context (missing Android compression) into a coherent explanation. That is real cross-source synthesis rather than a siloed summary. It falls short of excellent because the linkage to the business symptom in the user question (drop-off doubling) is not directly evidenced, and some connecting details such as timeout behavior are inferred without direct supporting records.",
+      "contradiction_handling": "The available ledger appears internally consistent rather than contradictory: telemetry shows elevated upload errors, and Jira provides a plausible engineering defect on Android. The candidate does not invent false conflicts, and there are no visible opposing signals it failed to reconcile. Under the rubric, correctly operating in a no-contradiction evidence set merits a top score.",
+      "causal_discipline": "The output materially overstates causality in several places. The problem statement says drop-off doubled 'due to' uncompressed uploads failing timeout, which is a definitive causal claim not established by the ledger. Timeout is not directly evidenced, and the body does not consistently hedge the mechanism as merely plausible. While the inference about large images timing out is reasonable and the hypothesis about compression helping is testable, the executive framing and factual section collapse inference into fact too aggressively.",
+      "recommendation_defensibility": "The recommendation is logical, actionable, and aligned with the evidence: implementing client-side compression is directly supported by the Jira issue and is a proportionate remediation. Adding timeout threshold changes is also plausible, though less directly supported than compression. Success metrics and a concrete risk are included. It misses some uncertainty handling and validation steps, such as segmenting Android impact, confirming timeout/error modes, or monitoring regression after rollout, so it is good rather than excellent."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 3,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 4
+    },
+    "latency": 10.757
+  },
+  {
+    "case_id": "judge_dev_07",
+    "scores": {
+      "groundedness": 1,
+      "cross_source_reasoning": 0,
+      "contradiction_handling": 2,
+      "causal_discipline": 0,
+      "recommendation_defensibility": 1
+    },
+    "rationales": {
+      "groundedness": "The ledger contains only a single Zendesk ticket reporting one rejected passport. The recommendation asserts sweeping factual claims with no ledger support: that the OCR provider is new, completely defective, caused all verification failures, halted onboarding, affected all KYC applicants, and that passport verifications broadly failed. Those are substantive unsupported additions. The only grounded fact is that one user reported a rejected passport.",
+      "cross_source_reasoning": "There is only one Zendesk source in evidence, and the candidate does not respect that boundary. It imputes an engineering/vendor root cause without telemetry or Jira evidence and effectively fabricates cross-system certainty. In a single-source case, a top score would require staying within source limits; this output does the opposite.",
+      "contradiction_handling": "There is no actual contradictory evidence in the ledger, so the output did not need to reconcile conflicts. However, it fails to recognize the extreme uncertainty implied by having only one complaint and instead presents a universal failure narrative. Since there are no explicit contradictions to resolve, this is not a direct contradiction miss, but it does not appropriately handle evidentiary tension between a single complaint and platform-wide claims.",
+      "causal_discipline": "The output makes severe unhedged causal claims from extremely weak evidence. It states the new OCR provider caused all verification failures, calls the algorithm broken, and predicts rollback will fix everything, all based on one support ticket. Observation, inference, and hypothesis are not meaningfully separated, and causation is asserted as fact without engineering or telemetry support.",
+      "recommendation_defensibility": "An immediate rollback of a vendor integration is a high-impact action that is not proportionate to the available evidence. With only one complaint, the defensible action would be to investigate failure codes, compare rejection rates, and confirm any temporal link to a provider change. The recommendation is connected to the complaint topic, but it is far too strong and insufficiently evidence-informed."
+    },
+    "human_ref_scores": {
+      "groundedness": 1,
+      "cross_source_reasoning": 1,
+      "contradiction_handling": 0,
+      "causal_discipline": 1,
+      "recommendation_defensibility": 1
+    },
+    "latency": 11.358
+  },
+  {
+    "case_id": "judge_dev_08",
+    "scores": {
+      "groundedness": 2,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 3,
+      "recommendation_defensibility": 3
+    },
+    "rationales": {
+      "groundedness": "The core direction is supported by the ledger: 3DS failures are 22%, bank transfer volume is up 35%, and Jira shows an SDK upgrade is required. However, the recommendation introduces several material unsupported factual additions as if verified: the claim that failures rose from 4% to 22%, the specific statement that FUND-42 identifies a deprecated SDK version, the affected-user specificity of '3DS v2 issuers,' and the recommended target version 'v2.2.' Those details are not present in the provided ledger, so this cannot score higher.",
+      "cross_source_reasoning": "This is strong multi-source synthesis. The output connects telemetry showing elevated 3DS challenge failures (PostHog) with increased bank transfer volume (PostHog) and engineering context that an SDK upgrade is required (Jira). The inference that users substitute bank transfers after card-authentication issues is a coherent cross-system explanation rather than a siloed restatement.",
+      "contradiction_handling": "The available evidence is directionally consistent and does not present a meaningful contradiction requiring reconciliation. The recommendation does not invent false conflicts and maintains a coherent narrative across the evidence. Under the rubric, correctly recognizing consistent signals merits the top score.",
+      "causal_discipline": "The structure mostly separates fact from interpretation appropriately: observed failure rates and bank-transfer growth are in factual observations, user substitution is in inference, and conversion recovery is framed as a hypothesis. The main weakness is some over-definitive causal phrasing in the problem statement ('driving shift') and the unqualified recommendation to upgrade to a specific SDK version, despite the evidence only showing that an upgrade is required, not proving that this is the sole cause or that v2.2 is the established fix. Still, the temporal/mechanical match is reasonably strong.",
+      "recommendation_defensibility": "The action is logical and proportionate: upgrading the 3DS SDK and adding a fallback notice directly addresses the observed card-authentication issue while mitigating user confusion. Success metrics are relevant, and the implementation risk is acknowledged. Minor weaknesses are that 'card deposit volume restored' is vague, the specific version target is unsupported by the ledger, and there is limited discussion of validation or monitoring beyond top-line metrics."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 4
+    },
+    "latency": 10.957
+  },
+  {
+    "case_id": "judge_dev_09",
+    "scores": {
+      "groundedness": 2,
+      "cross_source_reasoning": 3,
+      "contradiction_handling": 4,
+      "causal_discipline": 2,
+      "recommendation_defensibility": 3
+    },
+    "rationales": {
+      "groundedness": "The core observations are partially grounded: the ledger supports that BP-404 occurs on biller ID 992 and that PAY-310 says City Water changed account digits to 12. However, the recommendation adds several material unsupported facts as if established: 'Biller directory API schema change' is not in evidence, 'water utility' is only indirectly implied by the Jira title, 'Over 400 customers' is not supported by the ledger, and the specific mechanism of Pocket app validation/regex rejection is not directly shown in the evidence. The 100% resolution claim in hypotheses is also not grounded.",
+      "cross_source_reasoning": "It does perform meaningful cross-source synthesis by connecting PostHog error concentration on biller 992 with Jira evidence that City Water changed account-number length to 12 digits. That is a coherent telemetry-to-engineering linkage. The weakness is that it overcommits to a particular client-validation mechanism and API framing without direct evidence, so the synthesis is good but not fully disciplined.",
+      "contradiction_handling": "There is no clear contradiction in the provided ledger: PostHog shows BP-404 on biller 992 and Jira documents a relevant account-digit change for City Water. The candidate does not invent spurious conflicts, and the evidence appears directionally consistent. Given the absence of conflicting signals, handling consistency cleanly merits the top score.",
+      "causal_discipline": "The output materially overstates causality. It presents 'Biller directory API schema change caused BP-404 errors' as the problem statement even though the ledger only shows correlation between a biller-specific error and an account-digit change. The inference that app validation rejects 12-digit numbers is plausible, but it is only an inference and lacks direct support. The hypothesis that updating regex will resolve 100% of errors is overly definitive. The analysis distinguishes sections, but the executive framing and remedy language collapse an unproven mechanism into near-fact.",
+      "recommendation_defensibility": "The recommended action is logical and proportionate to the evidence: a scoped technical remediation aimed at biller 992, with a sensible risk about regression if not scoped. Success metrics are relevant. However, it is somewhat under-specified and too certain given the evidence; it should likely recommend validation of the exact failure point and staged re-enable/monitoring rather than directly asserting re-enable after a regex/config change."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 3,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 4
+    },
+    "latency": 11.567
+  },
+  {
+    "case_id": "judge_dev_10",
+    "scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 4,
+      "contradiction_handling": 4,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 3
+    },
+    "rationales": {
+      "groundedness": "The recommendation stays tightly within the limited ledger evidence. The only factual observation asserted is that 12 customer tickets reported delays on Euro transfers, which is directly supported by the Zendesk entry. Potential mechanisms such as partner FX liquidity or local clearing delay are correctly placed under hypotheses rather than stated as facts. It does not invent telemetry, Jira bugs, logs, baselines, or release details.",
+      "cross_source_reasoning": "Only Zendesk evidence is available, and the recommendation correctly respects that boundary instead of fabricating telemetry or Jira corroboration. It explicitly notes that technical root cause cannot be confirmed and recommends obtaining additional instrumentation/logs. Under the rubric, disciplined handling of a single-source investigation merits the top score.",
+      "contradiction_handling": "There is no contradictory evidence in the ledger; only a consistent signal of customer-reported delays exists. The output does not invent tensions or false reconciliations and appropriately reflects uncertainty. Because the available evidence is internally consistent and the SUT handles that cleanly, this deserves a 4.",
+      "causal_discipline": "The output shows strong epistemic separation. Empirical facts remain in factual_observations, the analytical takeaway is modestly phrased as an inference, and possible mechanisms are explicitly framed as hypotheses. The problem statement avoids unsupported causal claims and instead says there is insufficient evidence to determine root cause. The recommendation to instrument telemetry before taking stronger action is proportionate to the uncertainty.",
+      "recommendation_defensibility": "The recommendation is logical and low risk: add telemetry for international clearing and obtain partner FX logs before acting. That fits the evidence and the uncertainty level. However, it is somewhat narrow and could be more operationally actionable by including interim customer-facing mitigation, triage thresholds, or clearer outcome metrics beyond merely deploying instrumentation. Thus it is good but not fully excellent."
+    },
+    "human_ref_scores": {
+      "groundedness": 4,
+      "cross_source_reasoning": 3,
+      "contradiction_handling": 4,
+      "causal_discipline": 4,
+      "recommendation_defensibility": 4
+    },
+    "latency": 10.454
+  }
+]

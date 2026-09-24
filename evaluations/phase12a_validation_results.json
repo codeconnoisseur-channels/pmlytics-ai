@@ -1,0 +1,258 @@
+[
+  {
+    "scenario_id": "scenario_1",
+    "name": "Surge in Failed Transfers",
+    "query": "Why are customers reporting a surge in failed transfers this week?",
+    "investigation_id": "inv_p12a_scenario_1_20260917_153038",
+    "trace_id": "01a0affd-c838-7f70-ad8a-5aa67a9e3367",
+    "trace_url": "https://smith.langchain.com/o/c9dc4981-e15f-440d-ba5a-a7acdd9ba002/projects/p/ba81e5ec-a13b-4467-851c-abd2478620b4/trace/01a0affd-c838-7f70-ad8a-5aa67a9e3367/run/01a0affd-c838-7f70-ad8a-5aa67a9e3367?start_time=2026-09-17T15%3A30%3A39.800198%2B00%3A00",
+    "status": "completed",
+    "total_wall_clock_s": 98.46,
+    "end_to_end_wall_clock_gate_met_120s": true,
+    "wall_clock_performance_gate_status": "PASS",
+    "critical_path_diagnostic_s": 89.11,
+    "pre_revision_critical_path_s": 89.11,
+    "critical_path_is_diagnostic_only": true,
+    "calls_before_revision": 10,
+    "revision_count": 0,
+    "total_llm_calls": 10,
+    "expected_llm_calls": 10,
+    "deterministic_calls_guarantee_met": true,
+    "total_tool_calls": 13,
+    "input_tokens": 17692,
+    "output_tokens": 5395,
+    "provider_cost": 0.055906,
+    "key_delta_cost": 0.012478,
+    "truncation_events": 0,
+    "retries": 0,
+    "critic_outcome": "PASS",
+    "critic_issues": [],
+    "deterministic_validation": {
+      "revised_validation_passed": true,
+      "epistemic_separation_valid": true,
+      "facts_count": 7,
+      "inferences_count": 4,
+      "hypotheses_count": 3,
+      "total_citations": 8,
+      "valid_citations": 8,
+      "hallucinated_citations": 0,
+      "citation_validity_ratio": 1.0
+    },
+    "judge_quality": {
+      "groundedness": {
+        "score": 4,
+        "reasoning": "The recommendation is carefully constrained to what the ledger supports. It explicitly states that no numeric PostHog values were available, only 2 support tickets were found, and Jira showed open transfer-related issues. The factual_observations largely restate ledger contents without inventing metrics, dates, or root causes. There are no clear unsupported factual additions in the core findings."
+      },
+      "cross_source_reasoning": {
+        "score": 4,
+        "reasoning": "The output synthesizes Zendesk, PostHog, and Jira appropriately: customer complaints are contrasted with missing numeric telemetry, and Jira activity is treated as a lead rather than proof. It does not force a false cross-source consensus and respects source boundaries while still integrating them into one coherent investigative picture."
+      },
+      "contradiction_handling": {
+        "score": 4,
+        "reasoning": "It correctly handles the tension between reported customer concern and weak empirical support by explicitly noting the lack of verified surge evidence and the small ticket count. Rather than ignoring the mismatch, it frames it as an unresolved validation gap and includes this tension in both inferences and recommendation."
+      },
+      "causal_discipline": {
+        "score": 4,
+        "reasoning": "Causal language is well disciplined. The output avoids asserting that deployments or Jira issues caused the failures, instead using qualified language such as 'plausible contributor' and 'worth checking.' Hypotheses are clearly labeled as hypotheses, and the problem statement does not overclaim causation."
+      },
+      "recommendation_defensibility": {
+        "score": 4,
+        "reasoning": "The recommendation is proportionate and actionable: verify telemetry first, triage active Jira issues in parallel, and only then move to remediation if elevated failures are confirmed. It includes clear success metrics, notes risks, and aligns the response with the current uncertainty rather than recommending an overly broad or risky fix."
+      },
+      "identified_flaws": [
+        "The evidence ledger as provided lacks numeric PostHog outputs, so the investigation cannot substantiate the purported surge; this is correctly noted, but it leaves the root question unresolved.",
+        "The Jira evidence is treated as a lead, which is appropriate, but the 'recent deployments' linkage is very thin and should remain explicitly provisional.",
+        "The Zendesk evidence contains only 2 tickets and no historical comparison, so customer impact magnitude is not established.",
+        "Some phrasing around deployment-related context is slightly stronger than the underlying evidence, which is metadata-only rather than actual deployment verification."
+      ]
+    },
+    "recommendation_summary": {
+      "recommendation_type": "investigate_further",
+      "confidence": "low",
+      "problem_statement": "The reported 'surge' in failed transfers this week is not empirically verified by the retrieved analytics or support evidence. Available evidence shows only a small number of support tickets mentioning failed transfers, no numeric PostHog trend or breakdown data to confirm an increase, and several open Jira issues related to transfers that indicate active engineering investigation but do not establish customer impact magnitude or causality.",
+      "recommendation": "Investigate further before prioritizing broad remediation. Immediately validate whether transfer failures actually increased this week by obtaining numeric event trends, funnel step conversion/drop-off, and failure-code segmentation for transfer flows. In parallel, have engineering triage the currently open transfer-related Jira issues and review recent deployments/change logs specifically for transfer systems, but treat those issues as potential leads rather than confirmed causes. If validated telemetry shows elevated failures, convert the effort into targeted technical remediation focused on the affected step and failure code."
+    },
+    "historical_baseline": {
+      "investigation_id": "inv_20260917_075720_cb2741",
+      "runtime_s": 558.08,
+      "llm_calls": 21,
+      "tool_calls": 26,
+      "provider_cost": 0.788899,
+      "status": "historical_verified"
+    },
+    "phase12_standard": {
+      "runtime_s": 162.05,
+      "llm_calls": 16,
+      "tool_calls": 8,
+      "provider_cost": 0.071339
+    }
+  },
+  {
+    "scenario_id": "scenario_2",
+    "name": "Checkout Conversion Drop",
+    "query": "Why did checkout conversion drop in release 2.4?",
+    "investigation_id": "inv_p12a_scenario_2_20260917_153306",
+    "trace_id": "01a0b000-083a-7241-9f90-8df9bde72081",
+    "trace_url": "https://smith.langchain.com/o/c9dc4981-e15f-440d-ba5a-a7acdd9ba002/projects/p/ba81e5ec-a13b-4467-851c-abd2478620b4/trace/01a0b000-083a-7241-9f90-8df9bde72081/run/01a0b000-083a-7241-9f90-8df9bde72081?start_time=2026-09-17T15%3A33%3A07.258755%2B00%3A00",
+    "status": "completed",
+    "total_wall_clock_s": 121.41,
+    "end_to_end_wall_clock_gate_met_120s": false,
+    "wall_clock_performance_gate_status": "NOT MET",
+    "critical_path_diagnostic_s": 111.8,
+    "pre_revision_critical_path_s": 96.24,
+    "critical_path_is_diagnostic_only": true,
+    "calls_before_revision": 10,
+    "revision_count": 1,
+    "total_llm_calls": 11,
+    "expected_llm_calls": 11,
+    "deterministic_calls_guarantee_met": true,
+    "total_tool_calls": 13,
+    "input_tokens": 25111,
+    "output_tokens": 9410,
+    "provider_cost": 0.08074,
+    "key_delta_cost": 0.069556,
+    "truncation_events": 0,
+    "retries": 0,
+    "critic_outcome": "REVISE",
+    "critic_issues": [
+      "[unsupported_claim] \"Jira searches show active issues associated with checkout and payment-processing search terms\": The ledger only shows search results containing issue keys, not issue contents, severity, or confirmed checkout/payment-processing relevance. Stating that the issues are associated with checkout/payment-processing as a fact overstates what the search summaries prove.",
+      "[unsupported_claim] \"code changes in release 2.4 affecting payment processing and checkout UI are implicated in the issues\": This claim appears in the embedded evidence object and is not supported by the ledger entries provided. The Jira search summaries do not include code-change details, release diff evidence, or confirmed implications.",
+      "[missing_evidence] \"the current investigation cannot determine whether release 2.4 introduced a measurable conversion change\": This is directionally correct, but the recommendation does not clearly cite that the analytics queries failed and no usable funnel conversion data exists. The investigation is underpowered to answer the query, and that limitation should be made explicit in the primary recommendation rather than implied.",
+      "[segmentation_gap] \"Investigate further before prioritizing remediation for a checkout conversion regression. First, correct and rerun analytics queries to measure checkout funnel conversion before and after release 2.4, segmented by app version, user type, and funnel step.\": The evidence only shows failed queries for one event trend and one user_type breakdown; it does not establish that app-version segmentation or specific funnel-step attribution are currently available from the existing telemetry schema. This recommendation is reasonable, but it assumes a broader segmentation capability than the retrieved evidence demonstrates.",
+      "[recommendation_mismatch] \"In parallel, review the returned Jira issues for confirmed production impact, release linkage, and overlap with checkout steps\": The recommendation is partially aligned, but the primary finding is that the conversion drop itself is unverified. The more urgent corrective action should be to obtain reliable funnel telemetry and error/log evidence before using Jira issues to guide prioritization.",
+      "[confidence_mismatch] Overall recommendation confidence and framing imply the investigation can still support a product decision despite the missing analytics data.: Because the key conversion metric could not be measured and the evidence is limited to issue search hits plus zero-support tickets, confidence should remain strongly bounded. Any implication that the situation is sufficiently diagnosed risks overstating evidentiary strength."
+    ],
+    "deterministic_validation": {
+      "revised_validation_passed": true,
+      "epistemic_separation_valid": true,
+      "facts_count": 5,
+      "inferences_count": 3,
+      "hypotheses_count": 3,
+      "total_citations": 8,
+      "valid_citations": 8,
+      "hallucinated_citations": 0,
+      "citation_validity_ratio": 1.0
+    },
+    "judge_quality": {
+      "groundedness": {
+        "score": 3,
+        "reasoning": "Most substantive factual claims are supported by the ledger: PostHog queries returned no usable trend/breakdown data, Zendesk searches returned 0 tickets, and Jira searches returned issue keys only. The recommendation also correctly avoids asserting a measured conversion drop. Minor weakness: it introduces some generalized framing about potential affected users and investigation scope that is not directly demonstrated by the evidence, but these do not materially change the conclusion."
+      },
+      "cross_source_reasoning": {
+        "score": 3,
+        "reasoning": "The output uses all three sources appropriately: analytics evidence shows no usable conversion signal, Zendesk shows no customer-reported issues, and Jira shows only search hits. It also notes that Jira hits are not proof of production impact. The synthesis is sound but somewhat siloed; it does not meaningfully connect the Jira issue set to a concrete telemetry signature because no such evidence exists."
+      },
+      "contradiction_handling": {
+        "score": 4,
+        "reasoning": "There is no true contradiction in the ledger, and the SUT correctly recognizes that the evidence is incomplete rather than forcing a conflict resolution. It also explicitly states that Zendesk absence does not rule out silent abandonment and that Jira search hits do not establish impact. This is an appropriate handling of tension without overclaiming."
+      },
+      "causal_discipline": {
+        "score": 4,
+        "reasoning": "The recommendation is epistemically disciplined. It does not present the checkout drop as established, and it keeps causal language qualified: 'plausible contributor,' 'may exist,' 'consistent with.' The body separates observation from inference and hypothesis well, and it avoids converting Jira search results into a verified root cause. The one potential concern is a mildly suggestive wording around a possible defect, but it remains clearly hypothetical."
+      },
+      "recommendation_defensibility": {
+        "score": 4,
+        "reasoning": "The recommendation is proportionate and actionable: investigate further, validate funnel telemetry, segment by version and step if available, review error/payment-failure metrics, and defer remediation until evidence is confirmed. That matches the uncertainty level in the evidence and avoids premature prioritization. It includes useful success metrics and risk awareness, making it defensible and operationally sensible."
+      },
+      "identified_flaws": [
+        "Some narrative fields, such as affected_users, are broader than the evidence can verify, though not materially misleading.",
+        "Cross-source synthesis is correct but limited by the absence of usable telemetry and issue-level Jira details.",
+        "The recommendation could more explicitly foreground the failed analytics queries as the primary blocker before discussing Jira corroboration.",
+        "Jira search results are treated cautiously overall, but the evidence base is still thin enough that conclusions remain provisional."
+      ]
+    },
+    "recommendation_summary": {
+      "recommendation_type": "investigate_further",
+      "confidence": "low",
+      "problem_statement": "Current evidence does not allow assessment of whether checkout conversion dropped in release 2.4: the relevant PostHog queries returned no usable funnel/trend or segment data, so the conversion change cannot be measured from this ledger. Jira searches returned issue keys matching checkout/payment-processing search terms, but their actual relevance to checkout performance is unverified.",
+      "recommendation": "Investigate further before prioritizing remediation. First, obtain and validate reliable checkout funnel telemetry for pre- and post-release 2.4 so the conversion change can be measured; if available, segment by app version and funnel step, and only then use Jira review as secondary corroboration. In parallel, validate whether error logs or payment-failure metrics show a post-release change. Do not prioritize a checkout regression fix until the conversion signal and release linkage are confirmed."
+    },
+    "historical_baseline": null,
+    "phase12_standard": {
+      "runtime_s": 201.43,
+      "llm_calls": 18,
+      "tool_calls": 12,
+      "provider_cost": 0.149295
+    }
+  },
+  {
+    "scenario_id": "scenario_3",
+    "name": "Mobile EUR Transfer Delays",
+    "query": "Why are mobile EUR transfers experiencing extended delays?",
+    "investigation_id": "inv_p12a_scenario_3_20260917_153552",
+    "trace_id": "01a0b002-95f1-74d1-b2a1-f30cdaf4d43f",
+    "trace_url": "https://smith.langchain.com/o/c9dc4981-e15f-440d-ba5a-a7acdd9ba002/projects/p/ba81e5ec-a13b-4467-851c-abd2478620b4/trace/01a0b002-95f1-74d1-b2a1-f30cdaf4d43f/run/01a0b002-95f1-74d1-b2a1-f30cdaf4d43f?start_time=2026-09-17T15%3A35%3A54.609967%2B00%3A00",
+    "status": "completed",
+    "total_wall_clock_s": 107.43,
+    "end_to_end_wall_clock_gate_met_120s": true,
+    "wall_clock_performance_gate_status": "PASS",
+    "critical_path_diagnostic_s": 94.85,
+    "pre_revision_critical_path_s": 94.85,
+    "critical_path_is_diagnostic_only": true,
+    "calls_before_revision": 10,
+    "revision_count": 0,
+    "total_llm_calls": 10,
+    "expected_llm_calls": 10,
+    "deterministic_calls_guarantee_met": true,
+    "total_tool_calls": 13,
+    "input_tokens": 21042,
+    "output_tokens": 6611,
+    "provider_cost": 0.060148,
+    "key_delta_cost": 0.037907,
+    "truncation_events": 0,
+    "retries": 0,
+    "critic_outcome": "PASS",
+    "critic_issues": [],
+    "deterministic_validation": {
+      "revised_validation_passed": true,
+      "epistemic_separation_valid": true,
+      "facts_count": 5,
+      "inferences_count": 4,
+      "hypotheses_count": 3,
+      "total_citations": 9,
+      "valid_citations": 9,
+      "hallucinated_citations": 0,
+      "citation_validity_ratio": 1.0
+    },
+    "judge_quality": {
+      "groundedness": {
+        "score": 4,
+        "reasoning": "The recommendation is tightly grounded in the ledger. It correctly reports that PostHog only returned aggregate transfer event counts with no currency/platform segmentation, Zendesk searches returned zero tickets for all queried variants, and Jira searches surfaced related PAY/CORE issue keys without providing detail. The output avoids inventing concrete metrics, release identifiers, or customer-impact numbers that are not in evidence. Minor interpretive phrasing appears, but it stays appropriately qualified."
+      },
+      "cross_source_reasoning": {
+        "score": 4,
+        "reasoning": "The analysis synthesizes telemetry, support, and engineering signals appropriately: it uses PostHog to explain the inability to localize the issue, Zendesk to assess customer-facing corroboration, and Jira to note potential engineering relevance without overclaiming. It preserves source boundaries and does not fabricate a direct linkage from Jira issues to user delays. Given the limited detail in the ledger, this is the right level of cross-source reasoning."
+      },
+      "contradiction_handling": {
+        "score": 4,
+        "reasoning": "The output handles tensions cleanly. It recognizes that Jira contains related issues while Zendesk shows no matching complaints and telemetry is insufficient to verify a delay. Rather than forcing a conflict resolution, it states the uncertainty and explains that current evidence does not confirm a live delay. There is no unsupported contradiction invented, and no real contradiction is ignored."
+      },
+      "causal_discipline": {
+        "score": 4,
+        "reasoning": "Causal language is well constrained. The factual sections do not present causation as fact, and the inferences/hypotheses use qualified wording such as \"plausible contributors\" and \"consistent with.\" The recommendation to investigate segmented telemetry before escalating is proportional and does not claim the Jira issues caused the delay. This is disciplined technical diagnosis under uncertainty."
+      },
+      "recommendation_defensibility": {
+        "score": 4,
+        "reasoning": "The recommendation is actionable and proportionate: rerun corrected segmented analytics, review Jira issues in detail, and defer escalation until evidence confirms a measurable mobile EUR delay. It includes clear success metrics, acknowledges risks, and avoids costly remediation without localization. This is exactly the kind of low-risk, evidence-seeking action appropriate for an under-instrumented investigation."
+      },
+      "identified_flaws": [
+        "Some factual observations slightly overreach the ledger by implying mixed-status issue details and explicit absence of incident/outage categorization beyond what the search summaries show.",
+        "The output could be a bit more precise in separating what is directly observed in the ledger from what is the agent's synthesis, especially in the engineering observations.",
+        "The investigation is limited by missing stage-level telemetry, so the recommendation is necessarily provisional; this is handled well, but the evidence base remains thin."
+      ]
+    },
+    "recommendation_summary": {
+      "recommendation_type": "investigate_further",
+      "confidence": "low",
+      "problem_statement": "There is insufficient verified evidence to confirm or localize extended delays specific to mobile EUR transfers. The current investigation found only unsegmented aggregate transfer analytics, no matching customer support tickets, and Jira metadata indicating related engineering issues across PAY and CORE without enough detail to establish scope, severity, or direct linkage to observed user impact.",
+      "recommendation": "Investigate further before prioritizing remediation. First, correct and rerun analytics queries to obtain mobile- and currency-segmented funnel and lifecycle-duration data for EUR transfers, including stage-level timing from start through completion. In parallel, review the returned Jira issues in detail to map each issue to transfer stages and determine whether any open items are plausibly associated with latency rather than unrelated defects. Defer broader product escalation until segmented telemetry confirms whether a measurable mobile EUR delay exists and where it occurs."
+    },
+    "historical_baseline": null,
+    "phase12_standard": {
+      "runtime_s": 205.61,
+      "llm_calls": 16,
+      "tool_calls": 10,
+      "provider_cost": 0.156095
+    }
+  }
+]
