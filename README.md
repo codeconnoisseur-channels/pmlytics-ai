@@ -2,9 +2,9 @@
 
 PMLytics AI is a multi-agent product investigation system that helps product managers investigate fragmented evidence across Zendesk (customer support data), PostHog (user behaviour analytics), and Jira (engineering issues) to help decide what the team should do next.
 
-[![PMLytics AI product overview](docs/assets/pmlytics-product-overview.png)](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing)
+[![PMLytics AI product overview](docs/assets/pmlytics-product-overview.png)](https://drive.google.com/file/d/1JdMQtMo5zCblaGgDW_vAIYqUwwh4aaSJ/view?usp=sharing)
 
-[Watch the product demo](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing)
+[Watch the product demo](https://drive.google.com/file/d/1JdMQtMo5zCblaGgDW_vAIYqUwwh4aaSJ/view?usp=sharing)
 
 ## What it does
 
@@ -197,7 +197,7 @@ docs/         Specifications, ADRs, phase reports, and project knowledge base
 
 ## Demo
 
-Watch the [PMLytics AI product demo](https://drive.google.com/file/d/1UsdMRVT_Kzg-ikfzIxzqba005cLE5r2t/view?usp=sharing).
+Watch the [PMLytics AI product demo](https://drive.google.com/file/d/1JdMQtMo5zCblaGgDW_vAIYqUwwh4aaSJ/view?usp=sharing).
 
 The landing page includes four precomputed reference investigations that can be inspected without spending provider credit. Starting a new live investigation requires authentication and may incur OpenRouter usage.
 
@@ -207,7 +207,3 @@ Recommended demo flow:
 2. open its evidence drawer and trace findings to source records;
 3. compare facts, inferences, hypotheses, confidence, and follow-up items;
 4. only then run a live, date-bounded investigation if provider spend is intentional.
-
-## License
-
-This project is available under the [MIT License](LICENSE).
