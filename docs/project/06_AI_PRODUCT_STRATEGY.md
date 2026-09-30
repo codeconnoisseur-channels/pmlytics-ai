@@ -4,22 +4,7 @@
 
 This document explains the product strategy behind PMLytics AI: who it is for, which decision problem it addresses, why AI is useful, how the product could create measurable value, how it could reach users, and what might make it defensible.
 
-It is a strategy for the product that exists today, not a claim that every commercial assumption has been validated.
-
 PMLytics AI is the product. Pocket is the fictional fintech company represented in the synthetic demonstration data.
-
-## How to read the strategy
-
-The document distinguishes four kinds of statements:
-
-| Label | Meaning |
-| --- | --- |
-| **Implemented** | Present in the current application. |
-| **Observed** | Supported by project traces, evaluations, tests, or documented failures. |
-| **Strategic decision** | A deliberate product boundary or direction. |
-| **Hypothesis** | A proposition that would need user, market, or production evidence before being treated as true. |
-
-This distinction matters because a portfolio project can demonstrate product and technical judgement without proving market demand, willingness to pay, or production-scale reliability.
 
 ## Executive product thesis
 
