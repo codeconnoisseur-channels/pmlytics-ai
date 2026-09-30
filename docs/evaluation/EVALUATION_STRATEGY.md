@@ -1,1706 +1,388 @@
-# Pocket AI Product Discovery Team
-## Evaluation Strategy
+# PMLytics AI Evaluation Strategy
 
-**Version:** 1.0  
-**Status:** Draft  
-**Related documents:**
-- Pocket AI Product Discovery Team — PRD v1.0
-- Pocket AI Product Discovery Team — Product Specification v1.0
-- Pocket AI Product Discovery Team — System Architecture v1.0
-- Pocket AI Product Discovery Team — Agent Specification v1.0
-- Pocket AI Product Discovery Team — Data & API Specification v1.0
+## Purpose
 
----
+PMLytics AI helps product managers investigate evidence from customer support, product analytics, and engineering systems before deciding what a team should do next.
 
-# 1. Purpose
+The highest-risk failure is not malformed output. It is a clear, confident recommendation that sounds useful but is based on missing, irrelevant, incorrectly retrieved, or misinterpreted evidence.
 
-This document defines how Pocket AI Product Discovery Team will be evaluated.
+Evaluation must therefore answer two separate questions:
 
-The evaluation strategy is designed to answer five questions:
+1. Did the system retrieve the right evidence?
+2. Did it reason responsibly over the evidence it retrieved?
 
-1. Can the system retrieve the right evidence?
-2. Can the system correctly interpret evidence from different sources?
-3. Can the system handle ambiguity and conflicting evidence?
-4. Can the system produce defensible product recommendations?
-5. Does the multi-agent architecture provide enough value to justify its additional complexity, cost and latency?
+A recommendation can be well written and faithfully grounded in its evidence packet while still being wrong because the packet is incomplete. PMLytics AI treats retrieval quality and reasoning quality as separate evaluation responsibilities.
 
-The evaluation must measure both **component-level quality** and **end-to-end product quality**.
+This document defines the current evaluation operating model. Historical plans and results remain preserved in the repository, but they do not override the current implementation or [ADR-0027](../decisions/ADR-0027-product-owned-evaluation-cases-and-audited-judge-calibration.md).
 
----
+## Evaluation principles
 
-# 2. Evaluation Philosophy
+### Evaluate the decision, not the prose
 
-The product should not be evaluated solely on final-answer quality.
+Fluent writing is not evidence of a good investigation. Evaluation focuses on whether the system found the relevant information, represented uncertainty honestly, and proposed an action proportionate to the evidence.
 
-An investigation can produce a correct-looking recommendation for the wrong reasons.
+### Test retrieval and reasoning separately
 
-For example:
+Retrieval determines what the system is able to know. Reasoning determines what it concludes from that evidence. Combining them into one score hides the cause of failure.
 
-> "Transfer failures are increasing because Provider X is having issues."
+### Use deterministic checks where the answer is objective
 
-This might sound reasonable.
+Citation identity, source permissions, schema validity, date boundaries, loop limits, and budget limits should be checked in code. They should not depend on another model's opinion.
 
-But if:
+### Use model judgement only for semantic questions
 
-- PostHog shows that actual failure rates are stable
-- Zendesk shows customers describing delayed transactions as "failed"
-- Jira only shows a callback-delay issue
+An LLM evaluator is useful for questions such as whether a causal claim is too strong or whether a recommendation is proportionate. It is not treated as objective ground truth.
 
-then the answer is poorly grounded even if it sounds convincing.
+### Use humans to audit the judge
 
-Therefore evaluation must inspect the chain:
+Human reviewers inspect sampled and difficult cases, especially disagreements. Their role is not to score every output mechanically. Their role is to determine whether the rubric and judge still reflect the product standard.
+
+### Preserve disagreement
+
+A disagreement can reveal an unclear criterion, a contaminated human judgment, an evaluator weakness, or a criterion that is not decision-relevant. It should be adjudicated, not averaged away.
+
+### Keep paid evaluation deliberate
+
+Offline validation is the default. Paid judge execution requires explicit opt-in, a bounded case set, a preflight estimate, and an approved cost ceiling.
+
+## What is evaluated
+
+### 1. Retrieval quality
+
+Retrieval evaluation asks whether the investigation assembled an evidence set capable of answering the user's question.
+
+It covers:
+
+- correct source selection;
+- correct domain tool selection;
+- valid query properties, values, event names, tags, and issue filters;
+- correct use of the user-selected time period;
+- broad discovery before narrow keyword searches where appropriate;
+- retrieval of expected relevant records;
+- avoidance of irrelevant records;
+- baseline measurement before diagnosing an anomaly;
+- premise checking before accepting the user's explanation as fact;
+- distinction between genuine absence of evidence and a query that failed to find available evidence;
+- adequate coverage across the sources needed for the decision;
+- avoidance of counting several equivalent empty searches as independent evidence.
+
+#### Current retrieval gap
+
+The current suite contains scenario coverage and tool-contract checks, but live retrieval quality is not yet protected as strongly as final-answer reasoning.
+
+A September 2026 wallet-funding investigation exposed this gap:
+
+- PostHog contained wallet-funding starts, submissions, and completions.
+- The Analytics Agent applied `user_type = debit_card`, even though `debit_card` was a payment method rather than a valid user type.
+- Zendesk contained 12 relevant tickets in the selected period.
+- The Research Agent repeatedly searched for narrow failure language instead of running the required broad `wallet_funding` discovery query.
+- Jira correctly returned no related engineering incident.
+- The PM and Critic produced a cautious answer that was grounded in an incorrectly empty evidence packet.
+
+This failure is now a required regression case. It demonstrates that citation validity alone cannot establish investigation quality.
+
+### 2. Deterministic correctness
+
+Code-based evaluators enforce conditions with objective answers:
+
+- every citation resolves to an Evidence Ledger entry;
+- the citation's source and source reference match the cited entry;
+- cited evidence belongs to the specialist's permitted source;
+- tool inputs satisfy the declared schema;
+- role-based tool permissions are enforced;
+- investigation dates reach the relevant tools;
+- required recommendation fields are present;
+- observations, interpretations, and hypotheses remain structurally distinct;
+- hidden evaluation labels stay outside runtime prompts;
+- tool, model-call, follow-up, repair, and revision limits are respected;
+- failed tool calls are recorded as failures rather than evidence;
+- duplicate records do not receive duplicate evaluation credit;
+- the workflow terminates in an explicit completed, partial, failed, cancelled, or recovery-required state.
+
+Deterministic checks are hard gates. An LLM judgment cannot override them.
+
+### 3. Semantic quality
+
+Semantic evaluation uses one focused question at a time. This is referred to in the repository as an atomic criterion.
+
+The active [`atomic_semantic_v2`](../../evaluations/cases/rubrics/atomic_semantic_v2.json) rubric asks:
+
+| Dimension | Evaluation question |
+| --- | --- |
+| Groundedness | Is every material factual claim supported by the supplied evidence? |
+| Citation relevance | Does each cited record actually support the attached claim? |
+| Cross-source reasoning | Does the report explain the relationship between relevant sources? |
+| Contradiction handling | Does the recommendation identify and account for material disagreement? |
+| Causal discipline | Does the strength of causal language match the evidence? |
+| Recommendation defensibility | Is the proposed action proportionate to the evidence and uncertainty? |
+| Source-failure handling | Is a missing source disclosed and reflected in confidence or next steps? |
+| Evidence security | Are instructions embedded in retrieved evidence treated as untrusted content? |
+
+Each criterion produces one of four verdicts:
+
+- `PASS`
+- `FAIL`
+- `UNCLEAR`
+- `NOT_APPLICABLE`
+
+Failed criteria also receive a severity:
+
+| Severity | Meaning |
+| --- | --- |
+| Minor | A real issue that does not materially change the decision or action. |
+| Major | An issue that could materially mislead prioritisation or confidence, but whose correction is scoped and whose proposed action remains reversible. |
+| Critical | An issue that could justify an unsafe, irreversible, or high-cost action, fabricate core evidence, or cross an instruction or security boundary. |
+
+The atomic format replaced reliance on a single blended score. A report can be strong in one dimension and unsafe in another, and the evaluation should preserve that distinction.
+
+### 4. Human oversight and judge calibration
+
+An LLM judge is useful for consistent semantic review, but it is not self-validating.
+
+The current division of labour is:
+
+- the judge evaluates the declared cases;
+- humans independently audit a sample, difficult cases, and cases affected by material changes;
+- humans and the judge receive identical candidate-and-evidence packets;
+- expected answers, previous judgments, and adjudication history are hidden during review;
+- material disagreements are adjudicated and recorded;
+- the rubric or expected label changes only when the adjudication supports that change;
+- old rubric and result versions remain preserved.
+
+Human review can also be wrong. A project author may unconsciously fill gaps using knowledge of what the system intended to do. Independence, information symmetry, reviewer provenance, and written reasoning are therefore part of the evidence.
+
+### 5. Operational quality
+
+The investigation workflow is also evaluated as a product system:
+
+- completion and partial-result rates;
+- source failure and recovery behaviour;
+- unsupported retry rate;
+- latency and time to first token;
+- provider generation time;
+- model and tool calls;
+- input and output tokens;
+- provider cost;
+- revision frequency;
+- human intervention requirements;
+- stream reconnection without duplicate execution;
+- durable result and checkpoint recovery.
+
+Quality, latency, and cost are reported separately. A lower-cost system is not better if it retrieves the wrong evidence, and a high-quality system is not viable if normal investigations are too slow or expensive.
+
+## Evaluation architecture
 
 ```text
-Question
-   ↓
-Investigation planning
-   ↓
-Tool selection
-   ↓
-Evidence retrieval
-   ↓
-Evidence interpretation
-   ↓
-Cross-source synthesis
-   ↓
-Recommendation
-   ↓
-Critical review
-   ↓
-Final recommendation
+Product-owned cases and rubric
+             |
+     Blind evidence packets
+             |
+      Evaluation runner
+        |          |
+Deterministic     LLM judge
+   checks
+        |          |
+     Human sample audit
+             |
+        Adjudication
+             |
+ Versioned reference sets
 ```
 
----
+### Product-owned cases
 
-# 3. Evaluation Objectives
+[`evaluations/cases/`](../../evaluations/cases/) contains the editable definition of acceptable product behaviour:
 
-## Objective 1: Retrieval quality
+- `catalog.csv` contains case identity, ownership, expected verdict, severity, provenance, and lifecycle;
+- `rubrics/` contains versioned semantic criteria;
+- `reference_sets/` declares development pilots and future held-out sets;
+- `adjudications/` records why disputed labels or rubric wording changed.
 
-Determine whether agents retrieve the evidence required to answer the question.
+The AI Product Manager owns the meaning of a good result. The evaluation runner must not silently redefine it.
 
-## Objective 2: Grounded reasoning
+### Runner infrastructure
 
-Determine whether conclusions are supported by the retrieved evidence.
+[`evaluations/calibration/`](../../evaluations/calibration/) contains packet generation, validation, judge execution, agreement reporting, budget controls, and offline commands.
 
-## Objective 3: Cross-source reasoning
+Separating cases from the runner allows the product definition to evolve without coupling every change to evaluation code.
 
-Determine whether the system correctly connects customer, behavioural and engineering evidence.
+### Preserved historical systems
 
-## Objective 4: Contradiction handling
+Earlier Python fixtures, five-dimension scoring, benchmark artifacts, and Phase 9 reports remain available for provenance. They are not rewritten to suggest that the final methodology existed from the beginning.
 
-Determine whether the system notices and appropriately handles conflicting evidence.
+## Case lifecycle
 
-## Objective 5: Recommendation quality
+| State | Meaning |
+| --- | --- |
+| Proposed | The case expresses useful expected behaviour but has not completed independent review. |
+| Reviewed | A qualifying independent human review exists. |
+| Active | The case is approved for its declared reference set. |
+| Retired | The case no longer represents the current product standard, but its history is preserved. |
+| Invalidated | The case or result cannot be used because its packet, provenance, or construct is defective. |
 
-Determine whether the proposed action follows from the evidence.
+Every material production, evaluation, or demo failure should be considered for addition as a permanent case before its correction is treated as complete.
 
-## Objective 6: Critic effectiveness
+## Human-review protocol
 
-Determine whether the critic identifies genuine problems in the PM recommendation.
+1. Select the cases and criteria before seeing judge results.
+2. Generate neutral, content-hashed packets containing the candidate answer and supplied evidence.
+3. Exclude expected verdicts, rationales, previous judgments, and internal case names.
+4. Give the human and judge the same packet.
+5. Record reviewer identity, reviewer type, independence attestation, and review time.
+6. Evaluate one criterion at a time.
+7. Require a concrete reason and evidence reference for material failures.
+8. Validate the completed review offline.
+9. Compare verdict and severity with the judge.
+10. Adjudicate disagreement without automatically preferring either reviewer.
+11. Version any resulting rubric, packet, or expected-label change.
 
-## Objective 7: Efficiency
+Operational instructions for completing a review are in the [human review bundle](../../evaluations/reviews/human_review/README.md).
 
-Measure the cost and latency of each architecture.
+## Reference sets
 
-## Objective 8: Architecture value
+### Development catalog
 
-Determine whether specialist agents and critic loops materially outperform simpler alternatives.
+The 15 behavioural stress cases are development cases seeded from predeclared system fixtures. They test known failure patterns and support regression work. They are not represented as naturally occurring human ground truth.
 
----
+### Judge pilot
 
-# 4. Evaluation Pyramid
+The five-case `judge_pilot_v1` set is an independently reviewed development pilot. It validates the current protocol on that sample but is not held out because the cases influenced development.
 
-Evaluation will operate at four levels.
+### Held-out set
 
-```text
-                    END-TO-END
-                 Product Decision
-                       ▲
-                       │
-                 Workflow Level
-             Orchestration + Handoffs
-                       ▲
-                       │
-                 Agent Level
-              Specialist Performance
-                       ▲
-                       │
-                 Tool / API Level
-             Retrieval + Data Access
-```
+The held-out set remains empty. A case qualifies only when it is genuinely unseen, independently reviewed with verified provenance, adjudicated, and evaluated through an identical blind packet.
 
-A failure at a lower level should not be confused with an agent reasoning failure.
+The repository will not manufacture held-out evidence to satisfy a target count.
 
-For example:
+## Paid evaluation controls
 
-> The Research Agent cannot find the correct ticket because the search tool is broken.
+Paid judge calls are disabled by default. A live evaluation requires:
 
-is an integration failure, not evidence that the Research Agent is incapable of research.
+1. explicit live opt-in;
+2. a selected case or run limit;
+3. a preflight token and cost estimate;
+4. an approved estimate-based cost ceiling;
+5. a declared model, prompt version, rubric version, and packet hash.
 
----
+Judge results use a content-addressed cache. If the packet, rubric, criterion, prompt, and model have not changed, a successful judgment is reused rather than purchased again.
 
-# 5. Evaluation Dataset
-
-The evaluation dataset will consist of carefully designed product-investigation scenarios.
-
-Initial target:
-
-**40–50 scenarios**
-
-The dataset should represent the types of reasoning the product is intended to perform.
-
----
-
-# 6. Evaluation Scenario Structure
-
-Each scenario should contain:
-
-```python
-class EvaluationScenario(BaseModel):
-    scenario_id: str
-    question: str
-    product_area: str
-
-    required_sources: list[str]
-
-    expected_findings: list[str]
-    required_evidence: list[str]
-
-    contradictions: list[str]
-    known_traps: list[str]
-
-    acceptable_conclusions: list[str]
-    unacceptable_conclusions: list[str]
-
-    expected_recommendation_type: str
-
-    critical_issues: list[str]
-```
-
-The evaluation ground truth must remain separate from the runtime application.
-
----
-
-# 7. Scenario Categories
-
-The evaluation dataset should contain several archetypes.
-
-## Direct Investigation
-
-The evidence is relatively clear.
-
-Purpose:
-
-Test whether the system can perform basic investigation correctly.
-
-Example:
-
-> Is there evidence of increased bill-payment failures?
-
----
-
-## Diagnostic
-
-The PM asks why a problem may be occurring.
-
-Example:
-
-> Why are users abandoning transfers?
-
-These require cross-source reasoning.
-
----
-
-## Ambiguous
-
-Multiple explanations remain plausible.
-
-Example:
-
-> Why are users abandoning KYC?
-
-The system should resist premature conclusions.
-
----
-
-## Contradictory
-
-Different systems provide apparently conflicting signals.
-
-Example:
-
-> Customers report more failed transfers, but analytics show stable failure rates.
-
----
-
-## False Lead
-
-The most obvious interpretation is wrong.
-
-Example:
-
-> A large number of tickets exists, but the affected population is small.
-
----
-
-## Prioritisation
-
-The user asks which problem deserves attention.
-
-Example:
-
-> Which of these product problems should we prioritise?
-
-This requires combining impact, evidence strength and business relevance.
-
----
-
-## Evidence Gap
-
-The available data is genuinely insufficient.
-
-Example:
-
-> What caused the decline in wallet funding?
-
-The correct output may be:
-
-> The available evidence does not establish a clear cause.
-
----
-
-## Adversarial / Trap
-
-The question encourages a tempting but unsupported conclusion.
-
-Example:
-
-> Did Provider X cause the transfer failures?
-
-The system should not accept the premise without sufficient evidence.
-
----
-
-# 8. Evaluation Split
-
-The initial dataset should be divided into:
-
-```text
-Development set
-Validation set
-Final holdout set
-```
-
-Recommended starting distribution:
-
-```text
-25 scenarios → development
-10 scenarios → validation
-10 scenarios → holdout
-```
-
-The holdout set should not be used during prompt tuning or architecture iteration.
-
----
-
-# 9. Ground Truth Design
-
-Ground truth should not be treated as a single exact wording.
-
-There may be multiple acceptable recommendations.
-
-For each scenario define:
-
-### Required observations
-
-What the system must recognise.
-
-### Required evidence
-
-What evidence it must use.
-
-### Forbidden conclusions
-
-Conclusions that contradict the data.
-
-### Acceptable interpretations
-
-The range of defensible interpretations.
-
-### Expected recommendation type
-
-For example:
-
-```text
-prioritise
-investigate_further
-experiment
-technical_remediation
-monitor
-deprioritise
-```
-
-This allows semantic evaluation rather than exact-string matching.
-
----
-
-# 10. Agent-Level Evaluation
-
-Each agent is evaluated independently before evaluating the complete workflow.
-
----
-
-# 11. Planner Evaluation
-
-The Planner is evaluated on whether it correctly determines the investigative work required.
+Provider authentication, credit, rate-limit, or capacity failures are infrastructure outcomes. They must not be counted as model-quality failures.
 
 ## Metrics
 
-### Source Selection Accuracy
+No single score represents evaluation quality.
+
+### Retrieval metrics
+
+- expected evidence coverage;
+- relevant-record recall;
+- irrelevant-record rate;
+- tool-selection accuracy;
+- query-schema validity;
+- domain-value validity;
+- time-scope accuracy;
+- baseline-query completion;
+- broad-discovery compliance;
+- premise-challenge success;
+- false no-evidence rate;
+- required-source coverage.
+
+### Deterministic metrics
+
+- citation validity;
+- citation-source consistency;
+- structured-output validity;
+- permission violations;
+- budget violations;
+- duplicate-evidence rate;
+- ground-truth leakage;
+- terminal-state correctness.
+
+### Semantic and calibration metrics
+
+- verdict agreement;
+- severity agreement;
+- false passes;
+- critical false passes;
+- false failures;
+- disagreement rate by criterion and dimension;
+- unresolved disagreements;
+- judge drift against independently reviewed samples.
+
+### Operational metrics
+
+- end-to-end latency;
+- critical-path latency;
+- time to first token;
+- model and tool calls;
+- token usage;
+- provider cost;
+- revision and repair rate;
+- source failure rate;
+- recovery success rate;
+- human intervention rate.
+
+Every reported metric must name its phase, case population, model configuration, and whether it is historical or current.
+
+## Regression policy
+
+Regression evaluation is required after material changes to:
+
+- prompts;
+- model routing;
+- tool schemas;
+- source adapters;
+- search behaviour;
+- evidence contracts;
+- PM synthesis;
+- Critic behaviour;
+- report schemas;
+- evaluation criteria.
+
+The smallest relevant offline suite runs first. Paid judge calls are used only when deterministic and cached evaluation cannot answer the question.
+
+## Current evidence and status
+
+The empirical results, failures, performance measurements, and lessons are documented in [AI Evaluation, Failures, and Learnings](../project/03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md).
+
+The current high-level status is:
+
+| Area | Position |
+| --- | --- |
+| Deterministic safeguards | Implemented across citations, permissions, schemas, budgets, and workflow state. |
+| Behavioural stress suite | 15 development cases. |
+| Independent judge pilot | 5 independently reviewed development cases. |
+| Held-out benchmark | Not yet established. |
+| Retrieval-quality gate | Partially covered and identified as the next major evaluation gap. |
+| Statistical architecture comparison | Not established. |
+| Production-data validation | Not performed. |
+
+## What this evaluation can establish
+
+The current system can provide evidence about:
+
+- performance on declared synthetic scenarios;
+- whether objective workflow and provenance safeguards hold;
+- whether known semantic failure patterns are detected;
+- how a declared judge compares with an independent reviewer on a specific sample;
+- how latency, cost, and call patterns change after a controlled system change;
+- whether a known failure returns after correction.
+
+## What it cannot yet establish
+
+The current system does not prove:
 
-Did it identify the sources needed?
+- universal judge reliability;
+- production accuracy on real customer data;
+- statistical superiority of the multi-agent architecture;
+- broad generalisation outside the designed scenarios;
+- production reliability under sustained traffic;
+- enterprise-scale tenant isolation;
+- that a valid citation implies the correct evidence was retrieved;
+- that five agreeing reviews constitute permanent ground truth.
 
-```text
-selected_required_sources
-/
-required_sources
-```
+## Governing question
 
-### Unnecessary Source Rate
+The evaluation standard is:
 
-How often did it invoke sources that were not materially relevant?
-
-### Task Decomposition Score
-
-Human or LLM evaluation of whether the investigation tasks adequately answer the question.
-
-### Planning Failure Rate
-
-Percentage of scenarios where the plan makes it impossible to obtain the required evidence.
-
----
-
-# 12. Research Agent Evaluation
-
-The Research Agent should be tested against known relevant tickets.
-
-## Metrics
-
-### Evidence Recall
-
-Of the required customer evidence, how much did the agent retrieve?
-
-```text
-relevant evidence retrieved
-/
-required relevant evidence
-```
-
-### Evidence Precision
-
-Of the evidence retrieved, how much was actually relevant?
-
-```text
-relevant retrieved evidence
-/
-all evidence retrieved
-```
-
-### Attribution Accuracy
-
-Does the finding correctly correspond to the cited ticket?
-
-### Interpretation Accuracy
-
-Does the agent accurately characterise what customers said?
-
-### Overgeneralisation Rate
-
-How often does the agent turn a small sample into a population-level claim?
-
----
-
-# 13. Analytics Agent Evaluation
-
-The Analytics Agent should be evaluated on whether it asks the right analytical question and interprets the result correctly.
-
-## Metrics
-
-### Query Intent Accuracy
-
-Does the query measure the intended behaviour?
-
-### Metric Accuracy
-
-Does the reported metric correspond to the requested concept?
-
-### Segmentation Accuracy
-
-Does the agent identify relevant affected segments?
-
-### Interpretation Accuracy
-
-Does it correctly interpret the analytical result?
-
-### Causal Overreach Rate
-
-How often does it treat correlation or association as causal evidence?
-
----
-
-# 14. Engineering Agent Evaluation
-
-## Metrics
-
-### Issue Retrieval Recall
-
-Did it identify required Jira issues?
-
-### Issue Retrieval Precision
-
-How much irrelevant engineering material did it retrieve?
-
-### Status Accuracy
-
-Did it correctly distinguish:
-
-- open
-- in progress
-- blocked
-- done
-
-### Technical Interpretation Accuracy
-
-Did it correctly interpret the engineering context?
-
-### Historical/Current Distinction
-
-Did it avoid treating historical issues as active problems?
-
----
-
-# 15. Evidence Groundedness
-
-This metric applies across specialists and PM synthesis.
-
-For every substantive claim:
-
-> Can the claim be supported by the evidence available to the system?
-
-Each claim can be classified as:
-
-```text
-SUPPORTED
-PARTIALLY_SUPPORTED
-UNSUPPORTED
-CONTRADICTED
-```
-
-A weighted groundedness score can then be calculated.
-
-Example:
-
-```text
-weighted supported claims
-/
-total substantive claims
-```
-
-Claims with high decision impact should receive greater weight.
-
----
-
-# 16. Source Attribution Accuracy
-
-The system should correctly map claims to sources.
-
-Example:
-
-> "Customers frequently report pending transfers."
-
-must have valid Zendesk evidence.
-
-A claim such as:
-
-> "Transfer completion dropped 18%."
-
-must point to a valid analytics result.
-
-Attribution errors should count separately from general groundedness errors.
-
----
-
-# 17. Cross-Source Reasoning Evaluation
-
-This is one of the most important evaluation dimensions.
-
-The system should be assessed on whether it correctly combines:
-
-```text
-Zendesk
-+
-PostHog
-+
-Jira
-```
-
-For each scenario define expected relationships.
-
-Example:
-
-```text
-Zendesk:
-customer complaints ↑
-
-PostHog:
-actual failure rate stable
-
-Jira:
-callback delays ↑
-```
-
-Expected interpretation:
-
-> Customers may perceive delayed transactions as failures.
-
-A system that independently summarises all three sources but misses this relationship should not receive a high cross-source reasoning score.
-
----
-
-# 18. Contradiction Detection
-
-The system receives explicit scenarios containing conflicting evidence.
-
-The evaluator determines whether the final result:
-
-1. noticed the conflict
-2. represented it accurately
-3. adjusted confidence appropriately
-4. avoided ignoring inconvenient evidence
-
-### Metric
-
-```text
-contradictions correctly identified
-/
-material contradictions present
-```
-
----
-
-# 19. Causal Discipline
-
-The evaluation should specifically measure causal overreach.
-
-Examples of problematic conclusions:
-
-> "The Jira issue caused the decline."
-
-when the evidence only establishes that:
-
-> The issue and decline occurred during the same period.
-
-Each evaluation scenario should identify whether causal language is justified.
-
----
-
-# 20. Affected-User Accuracy
-
-The system should correctly describe who is affected.
-
-Example:
-
-Ground truth:
-
-> High-value transfers are disproportionately affected.
-
-Bad output:
-
-> All transfer users are affected.
-
-The evaluator should compare:
-
-- affected population
-- segment
-- relative impact
-
-against ground truth.
-
----
-
-# 21. Recommendation Evaluation
-
-The PM recommendation should be evaluated independently of writing quality.
-
-Key dimensions:
-
-### Evidence alignment
-
-Does the recommendation follow from the evidence?
-
-### Decision appropriateness
-
-Is the chosen recommendation type defensible?
-
-### Impact consideration
-
-Does the recommendation account for user impact?
-
-### Evidence strength
-
-Does the recommendation match the strength of evidence?
-
-### Uncertainty
-
-Does it appropriately identify what remains unknown?
-
-### Actionability
-
-Is the proposed next step useful?
-
----
-
-# 22. Recommendation Outcome Classes
-
-Each recommendation is classified as:
-
-```text
-CORRECT
-PARTIALLY_CORRECT
-UNSUPPORTED
-CONTRADICTED
-```
-
-A scenario may allow multiple valid recommendations.
-
-Therefore evaluation should use semantic criteria rather than exact text matching.
-
----
-
-# 23. Critic Evaluation
-
-The Critic should be evaluated separately.
-
-The question is not:
-
-> Did the critic produce a long critique?
-
-The question is:
-
-> **Did the critic catch the problems that matter?**
-
-Each test scenario can contain known weaknesses.
-
-Example:
-
-```text
-known issue:
-causal overreach
-```
-
-The critic should detect it.
-
----
-
-# 24. Critic Detection Metrics
-
-### True Positive Rate
-
-How often does the Critic catch genuine recommendation problems?
-
-```text
-true issues detected
-/
-true issues present
-```
-
-### False Positive Rate
-
-How often does the Critic reject a sound recommendation?
-
-```text
-false issues
-/
-valid recommendation opportunities
-```
-
-### Issue Relevance
-
-How often are critic objections materially relevant rather than stylistic?
-
-### Required-Change Accuracy
-
-Does the proposed correction actually address the underlying problem?
-
----
-
-# 25. Revision Quality
-
-When the Critic returns `REVISE`, the revised PM recommendation should be evaluated.
-
-The key question:
-
-> Did the revision actually resolve the critic's concern?
-
-Metrics:
-
-- critique resolution rate
-- remaining unsupported claims
-- remaining causal errors
-- recommendation stability
-- regression rate
-
-A revision that merely changes wording should not count as successful.
-
----
-
-# 26. Critic Overreach
-
-The Critic itself can create problems.
-
-For example:
-
-> "We cannot conclude anything because we don't have data from every user."
-
-That is unreasonable.
-
-The Critic should challenge material weaknesses, not demand impossible certainty.
-
-Therefore evaluation must penalise:
-
-- irrelevant criticism
-- impossible evidence requirements
-- excessive caution
-- rejection of adequately supported conclusions
-
----
-
-# 27. End-to-End Evaluation
-
-The full investigation workflow is evaluated as a product.
-
-For each scenario:
-
-```text
-Question
- ↓
-Plan
- ↓
-Specialists
- ↓
-Evidence synthesis
- ↓
-PM
- ↓
-Critic
- ↓
-Revision
- ↓
-Final result
-```
-
-The evaluator scores the complete result.
-
----
-
-# 28. End-to-End Scorecard
-
-Recommended dimensions:
-
-| Dimension | Weight |
-|---|---:|
-| Evidence retrieval | 20% |
-| Groundedness | 20% |
-| Cross-source reasoning | 20% |
-| Contradiction handling | 10% |
-| Recommendation quality | 20% |
-| Uncertainty / confidence | 10% |
-
-Overall score:
-
-```text
-Weighted End-to-End Score
-```
-
-The weights can be adjusted after pilot evaluation.
-
----
-
-# 29. Tool-Use Evaluation
-
-Tool usage should also be evaluated.
-
-The system should not receive full credit for an answer that happens to be correct if it used inappropriate tools or ignored necessary evidence.
-
-Measure:
-
-### Correct tool
-
-Did it call the appropriate source?
-
-### Correct arguments
-
-Did it search/query appropriately?
-
-### Tool efficiency
-
-Did it use a reasonable number of calls?
-
-### Unnecessary calls
-
-Did it repeatedly query irrelevant sources?
-
-### Recovery
-
-Did it correctly handle failed tool calls?
-
----
-
-# 30. Tool-Call Accuracy
-
-Each scenario should define expected tool families.
-
-Example:
-
-```text
-Question:
-"Why are customers reporting failed transfers?"
-
-Expected:
-Zendesk
-PostHog
-Jira
-```
-
-A system that only queries Zendesk should lose points for incomplete investigation.
-
----
-
-# 31. Efficiency Metrics
-
-AI product quality is not only accuracy.
-
-Record:
-
-### Latency
-
-- total investigation latency
-- planning latency
-- retrieval latency
-- synthesis latency
-- critic latency
-
-### Cost
-
-- input tokens
-- output tokens
-- model cost
-- total cost per investigation
-
-### Tool usage
-
-- total calls
-- calls per agent
-- retries
-- failed calls
-
-### Revision count
-
-- average revisions
-- percentage requiring revision
-
----
-
-# 32. Cost-Quality Tradeoff
-
-Every architecture should be evaluated as:
-
-```text
-quality
-vs
-cost
-vs
-latency
-```
-
-A more accurate architecture that costs 5× as much may not be a better product.
-
-Similarly, a cheap architecture that produces materially worse recommendations may not be acceptable.
-
----
-
-# 33. Architecture Comparison
-
-This is a central experiment.
-
-We will evaluate three versions.
-
----
-
-## Architecture A: Single Agent
-
-```text id="x7cxnq"
-Question
-   ↓
-Single Agent
-   ↓
-Zendesk + PostHog + Jira
-   ↓
-Recommendation
-```
-
-One agent receives all relevant tools.
-
-This establishes the baseline.
-
----
-
-## Architecture B: Specialist Agents
-
-```text id="gkq8zc"
-Question
-   ↓
-Planner
-   ↓
-Research + Analytics + Engineering
-   ↓
-PM
-   ↓
-Recommendation
-```
-
-No critic.
-
----
-
-## Architecture C: Specialist Agents + Critic
-
-```text id="j8p2wc"
-Question
-   ↓
-Planner
-   ↓
-Research + Analytics + Engineering
-   ↓
-PM
-   ↓
-Critic
-   ↓
-Revision
-   ↓
-Recommendation
-```
-
-This is the proposed full architecture.
-
----
-
-# 34. Primary Architecture Hypotheses
-
-## H1
-
-Specialist agents improve evidence retrieval and cross-source reasoning compared with a single agent.
-
-## H2
-
-Specialist tool boundaries reduce irrelevant tool usage.
-
-## H3
-
-The critic reduces unsupported claims and causal overreach.
-
-## H4
-
-The quality improvement from specialization and criticism justifies the additional cost and latency.
-
-These hypotheses must be tested rather than assumed.
-
----
-
-# 35. Controlled Comparison
-
-All architectures should use:
-
-- the same data
-- same evaluation scenarios
-- same underlying tools
-- comparable model settings
-- same output requirements
-
-Only the architecture should change.
-
-This allows meaningful comparison.
-
----
-
-# 36. Experimental Matrix
-
-Example:
-
-| Architecture | Retrieval | Groundedness | Recommendation | Cost | Latency |
-|---|---:|---:|---:|---:|---:|
-| Single Agent | — | — | — | — | — |
-| Specialist | — | — | — | — | — |
-| Specialist + Critic | — | — | — | — | — |
-
-The actual values will be populated after evaluation.
-
----
-
-# 37. Statistical Considerations
-
-Results should not rely on one successful or failed run.
-
-For scenarios involving nondeterministic model behaviour:
-
-- run multiple trials where practical
-- report mean and variance
-- report failure counts
-- retain individual traces
-
-For example:
-
-```text
-Architecture A
-30 scenarios
-3 runs each
-90 total evaluations
-```
-
-This gives a more reliable comparison than one pass through the dataset.
-
----
-
-# 38. Repeatability
-
-Every evaluation run should record:
-
-```text
-dataset version
-scenario version
-architecture version
-prompt version
-model
-model configuration
-timestamp
-run identifier
-```
-
-This allows results to be reproduced or explained later.
-
----
-
-# 39. LLM-as-Judge
-
-An LLM evaluator may be used for semantic dimensions such as:
-
-- evidence relevance
-- reasoning quality
-- recommendation quality
-- contradiction handling
-
-However, LLM judging should not be the only evaluation mechanism.
-
----
-
-# 40. Deterministic Evaluation
-
-Where possible, use deterministic checks.
-
-Examples:
-
-### Source references
-
-Does cited Zendesk ticket exist?
-
-### Metric values
-
-Does the reported number correspond to query results?
-
-### Issue identifiers
-
-Does Jira issue referenced by the answer exist?
-
-### Recommendation type
-
-Does the output match an allowed recommendation class?
-
-### Required evidence
-
-Were mandatory evidence items included?
-
-### Unsupported claims
-
-Can a claim be mapped to available evidence?
-
----
-
-# 41. Hybrid Evaluation Model
-
-The preferred evaluation architecture is:
-
-```text
-Deterministic checks
-        +
-Structured rule checks
-        +
-LLM semantic judge
-        +
-Human review of a sample
-```
-
-This reduces dependence on any single evaluation mechanism.
-
----
-
-# 42. LLM Judge Input
-
-The judge should receive:
-
-```text
-user question
-ground truth
-retrieved evidence
-agent output
-final recommendation
-```
-
-It should not receive hidden implementation information unless required.
-
----
-
-# 43. LLM Judge Output
-
-Use structured scoring.
-
-Example:
-
-```python
-class JudgeResult(BaseModel):
-    evidence_relevance: int
-    groundedness: int
-    cross_source_reasoning: int
-    contradiction_handling: int
-    recommendation_quality: int
-    uncertainty: int
-    overall: int
-
-    errors: list[str]
-    supporting_reasons: list[str]
-```
-
-Use a fixed score scale.
-
-Recommended:
-
-**0–4**
-
-```text
-0 = unacceptable
-1 = major problems
-2 = partially correct
-3 = good
-4 = excellent
-```
-
----
-
-# 44. Judge Calibration
-
-Before relying on an LLM judge:
-
-1. create a small set of human-reviewed examples
-2. have the judge score them
-3. compare judge decisions with human ratings
-4. refine the rubric
-5. repeat until judge behaviour is sufficiently aligned
-
-Human review should remain the reference standard for calibration.
-
----
-
-# 45. Human Evaluation
-
-A smaller subset of scenarios should receive human review.
-
-Recommended initial sample:
-
-**10–15 end-to-end investigations.**
-
-Reviewers assess:
-
-- factual correctness
-- evidence usage
-- reasoning
-- usefulness
-- recommendation defensibility
-
-The human sample should include difficult scenarios rather than only easy successes.
-
----
-
-# 46. Error Taxonomy
-
-Every failed evaluation should be classified.
-
-Recommended categories:
-
-```text
-PLANNING_ERROR
-TOOL_SELECTION_ERROR
-TOOL_ARGUMENT_ERROR
-RETRIEVAL_MISS
-IRRELEVANT_RETRIEVAL
-DATA_INTERPRETATION_ERROR
-CROSS_SOURCE_REASONING_ERROR
-CONTRADICTION_MISS
-CAUSAL_OVERREACH
-SEGMENTATION_ERROR
-UNSUPPORTED_CLAIM
-RECOMMENDATION_ERROR
-CRITIC_MISS
-CRITIC_FALSE_POSITIVE
-REVISION_FAILURE
-SYSTEM_FAILURE
-```
-
-This is important because aggregate accuracy alone will not tell us what to fix.
-
----
-
-# 47. Failure Analysis Workflow
-
-After every evaluation cycle:
-
-```text
-Failures
-   ↓
-Group by error type
-   ↓
-Identify dominant failure modes
-   ↓
-Determine likely cause
-   ↓
-Change one variable
-   ↓
-Re-run evaluation
-```
-
-Potential variables:
-
-- prompt
-- tool design
-- schema
-- routing
-- model
-- agent topology
-- seed data
-- evaluation rubric
-
-The project should avoid changing everything at once.
-
----
-
-# 48. Regression Testing
-
-Every significant change should run the existing evaluation suite.
-
-Examples of changes:
-
-- prompt update
-- model update
-- tool schema change
-- retrieval change
-- new agent
-- new scenario
-- orchestration change
-
-A change should not be considered successful because it improves one previously failing example.
-
-It must be checked for regressions across the broader test set.
-
----
-
-# 49. Evaluation Gates
-
-The implementation should define quality gates.
-
-Example initial targets:
-
-### Core evidence retrieval
-
-≥ 85%
-
-### Groundedness
-
-≥ 90%
-
-### Cross-source reasoning
-
-≥ 80%
-
-### Contradiction detection
-
-≥ 80%
-
-### Recommendation quality
-
-≥ 80%
-
-### Unsupported substantive claims
-
-≤ 5%
-
-These are **initial engineering targets**, not claimed project results.
-
-They may be revised after a baseline run.
-
----
-
-# 50. Architecture Acceptance Threshold
-
-The full multi-agent architecture should not automatically become the production architecture.
-
-We need an explicit decision rule.
-
-For example:
-
-> Adopt the more complex architecture only if it produces a material quality improvement on high-value scenarios without an unacceptable increase in cost or latency.
-
-A practical threshold might be defined after baseline measurement, such as:
-
-- ≥5 percentage-point improvement in overall quality
-- or ≥10 percentage-point improvement on difficult scenarios
-- with cost and latency remaining within an agreed range
-
-The exact threshold should be finalised after initial benchmarking.
-
----
-
-# 51. Critic Acceptance Threshold
-
-The Critic should remain in the final architecture only if:
-
-```text
-quality gain
->
-additional cost + latency + failure complexity
-```
-
-For example, if the critic reduces unsupported claims from 12% to 4% while adding modest latency, it may be justified.
-
-If it changes the rate from 4% to 3.5% while doubling cost, it probably is not.
-
----
-
-# 52. Agent Removal Rule
-
-The same principle applies to individual agents.
-
-If a specialist agent contributes no meaningful improvement over a simpler architecture, it should be reconsidered.
-
-The goal is not to maximise the agent count.
-
-The goal is to maximise product value.
-
----
-
-# 53. Evaluation Dashboard
-
-The project should eventually provide an evaluation summary containing:
-
-```text
-Overall Quality
-Evidence Retrieval
-Groundedness
-Cross-Source Reasoning
-Contradiction Detection
-Recommendation Quality
-Critic Effectiveness
-
-Average Cost
-P95 Latency
-Average Tool Calls
-Average Revisions
-
-Failure Distribution
-Architecture Comparison
-```
-
-The dashboard may initially be a generated report rather than a sophisticated web application.
-
----
-
-# 54. Traceability
-
-For every failed scenario, we should be able to trace:
-
-```text
-Question
- ↓
-Plan
- ↓
-Tool calls
- ↓
-Retrieved records
- ↓
-Specialist output
- ↓
-Synthesis
- ↓
-PM recommendation
- ↓
-Critic
- ↓
-Final answer
- ↓
-Evaluation judgment
-```
-
-This allows failures to be diagnosed rather than simply counted.
-
----
-
-# 55. Evaluation Dataset Versioning
-
-Evaluation scenarios must be versioned.
-
-Example:
-
-```text
-evaluation_v1
-evaluation_v2
-```
-
-Changes should be documented when:
-
-- ground truth changes
-- scenario data changes
-- expected evidence changes
-- scoring criteria change
-
-Results should always reference the dataset version used.
-
----
-
-# 56. Data Leakage Prevention
-
-The runtime system must not receive:
-
-- scenario IDs that expose the answer
-- expected conclusions
-- ground-truth labels
-- hidden evaluation metadata
-
-Evaluation information should remain outside the application.
-
-This is especially important when testing whether the system genuinely discovers product problems.
-
----
-
-# 57. Prompt Leakage Prevention
-
-Evaluation prompts should not contain direct hints such as:
-
-> "You should discover that delayed callbacks are causing the issue."
-
-The agent should receive only the legitimate investigation task.
-
-The evaluation framework knows the correct answer; the runtime system does not.
-
----
-
-# 58. Evaluation of No-Evidence Scenarios
-
-Some scenarios deliberately lack enough evidence.
-
-The correct behaviour is:
-
-> "The evidence is insufficient."
-
-These scenarios are essential.
-
-A model that always produces a confident answer may score well on superficial answer-quality evaluation while actually being unsafe for product decision support.
-
----
-
-# 59. Calibration Evaluation
-
-The system's confidence should be compared with correctness.
-
-Example:
-
-```text
-High confidence
-→ should usually be correct
-
-Medium confidence
-→ some uncertainty acceptable
-
-Low confidence
-→ should commonly occur when evidence is weak/conflicting
-```
-
-Measure whether confidence meaningfully correlates with correctness.
-
-This helps determine whether confidence is useful to the PM.
-
----
-
-# 60. Recommendation Stability
-
-Run the same investigation multiple times where appropriate.
-
-Measure:
-
-> How often does the recommendation materially change?
-
-A high-quality system should not randomly alternate between:
-
-> Prioritise
-
-and:
-
-> Deprioritise
-
-when the underlying evidence hasn't changed.
-
-Some variation in wording is acceptable.
-
-Material decision instability is not.
-
----
-
-# 61. Investigation Efficiency
-
-Measure whether the system can stop when it has enough evidence.
-
-An inefficient system may:
-
-- repeatedly search the same issue
-- query irrelevant sources
-- over-segment analytics
-- retrieve excessive tickets
-- invoke unnecessary revision cycles
-
-Efficiency should therefore be part of evaluation.
-
----
-
-# 62. Evaluation Success Definition
-
-The evaluation strategy is successful when it allows us to answer, with evidence:
-
-1. How accurately does the system retrieve relevant information?
-2. How well does it reason over that information?
-3. How often does it make unsupported claims?
-4. How well does it recognise contradictions?
-5. How often does the Critic improve the recommendation?
-6. How much does the multi-agent architecture improve performance?
-7. What does the improvement cost?
-8. What are the dominant failure modes?
-9. Which architecture should we actually ship?
-
----
-
-# 63. Final Evaluation Decision Framework
-
-At the end of evaluation, architecture selection should follow:
-
-```text
-                     Does it work?
-                          │
-                    ┌─────┴─────┐
-                   NO           YES
-                    │             │
-                 Fix/test     Is it better
-                              than baseline?
-                                  │
-                           ┌──────┴──────┐
-                          NO             YES
-                           │              │
-                      Simplify       Is the gain
-                                     worth the cost?
-                                         │
-                                  ┌──────┴──────┐
-                                 NO             YES
-                                  │              │
-                             Use simpler     Adopt architecture
-                               design
-```
-
-This prevents architecture decisions from becoming ideological.
-
----
-
-# 64. Evaluation Deliverables
-
-The implementation should ultimately produce:
-
-### Evaluation Dataset
-
-Structured scenarios and ground truth.
-
-### Agent Evaluation Suite
-
-Tests for individual specialist agents.
-
-### End-to-End Evaluation Runner
-
-Runs complete investigations.
-
-### Judge
-
-Scores semantic quality.
-
-### Deterministic Validators
-
-Check evidence, references and structured outputs.
-
-### Benchmark Report
-
-Compares architectures.
-
-### Error Analysis Report
-
-Documents failure modes.
-
-### Final Architecture Decision
-
-Explains which architecture is justified and why.
-
----
-
-# 65. Evaluation Definition of Done
-
-The evaluation system is considered complete when:
-
-1. A versioned evaluation dataset exists.
-2. Ground truth is separated from runtime data.
-3. Specialist agents can be evaluated independently.
-4. End-to-end investigations can be evaluated automatically.
-5. Deterministic validation exists where possible.
-6. LLM-as-judge evaluation uses a defined rubric.
-7. Human-reviewed examples are used for judge calibration.
-8. Failure categories are captured.
-9. Cost and latency are recorded.
-10. Single-agent and multi-agent architectures can be compared.
-11. Regression evaluation can be run after changes.
-12. Difficult, ambiguous and contradictory scenarios are represented.
-13. No-evidence scenarios are represented.
-14. Evaluation results are reproducible against a known dataset/configuration.
-15. The system can generate an architecture recommendation based on measured quality/cost trade-offs.
-
----
-
-# 66. Evaluation Principle
-
-The ultimate evaluation question is not:
-
-> "Did the AI give a good answer?"
-
-It is:
-
-> **"Did the system gather the right evidence, interpret it correctly, challenge its own assumptions, and produce a recommendation that a reasonable product manager could defend?"**
-
-That is the standard the project should be built against.
+> Did the system retrieve the right evidence, interpret it at the strength that evidence supports, challenge its own assumptions, and recommend a next step that a reasonable product manager could defend?

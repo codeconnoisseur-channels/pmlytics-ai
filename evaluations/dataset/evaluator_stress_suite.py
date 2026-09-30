@@ -27,9 +27,11 @@ from app.domain.jira import JiraIssue
 from app.domain.recommendation import ProductRecommendation
 from app.domain.zendesk import ZendeskTicket
 from app.tools.analytics import QueryAnalyticsOutput
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from evaluations.evaluators.judge import EvaluationJudgeReport
+
+FIXTURE_TIMESTAMP = datetime(2026, 9, 14, 12, 0, tzinfo=UTC)
 
 
 class BehavioralCheckType(StrEnum):
@@ -71,6 +73,7 @@ class EvaluatorStressCase(BaseModel):
     user_query: str
     candidate_recommendation: ProductRecommendation
     evidence_ledger_entries: list[EvidenceLedgerEntry]
+    source_failures: list[dict[str, object]] = Field(default_factory=list)
     invariants: list[BehavioralInvariant]
 
 
@@ -91,7 +94,7 @@ def _make_zendesk(eid: str, ref: str, summary: str, support: str) -> EvidenceLed
         ledger_entry_id=eid,
         source_type="zendesk",
         source_reference=ref,
-        retrieved_at=datetime.now(UTC),
+        retrieved_at=FIXTURE_TIMESTAMP,
         data_summary=summary,
         typed_payload=ZendeskTicket(
             id=num_id,
@@ -101,8 +104,8 @@ def _make_zendesk(eid: str, ref: str, summary: str, support: str) -> EvidenceLed
             status="open",
             priority="normal",
             channel="email",
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
+            created_at=FIXTURE_TIMESTAMP,
+            updated_at=FIXTURE_TIMESTAMP,
         ),
     )
 
@@ -113,7 +116,7 @@ def _make_jira(eid: str, ref: str, summary: str, support: str) -> EvidenceLedger
         ledger_entry_id=eid,
         source_type="jira",
         source_reference=ref,
-        retrieved_at=datetime.now(UTC),
+        retrieved_at=FIXTURE_TIMESTAMP,
         data_summary=summary,
         typed_payload=JiraIssue(
             id=num_id,
@@ -123,8 +126,8 @@ def _make_jira(eid: str, ref: str, summary: str, support: str) -> EvidenceLedger
             issue_type="Bug",
             status="In Progress",
             priority="High",
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
+            created_at=FIXTURE_TIMESTAMP,
+            updated_at=FIXTURE_TIMESTAMP,
         ),
     )
 
@@ -134,7 +137,7 @@ def _make_posthog(eid: str, ref: str, summary: str, support: str) -> EvidenceLed
         ledger_entry_id=eid,
         source_type="posthog",
         source_reference=ref,
-        retrieved_at=datetime.now(UTC),
+        retrieved_at=FIXTURE_TIMESTAMP,
         data_summary=summary,
         typed_payload=QueryAnalyticsOutput(
             result=AnalyticsQueryResult(
@@ -142,8 +145,6 @@ def _make_posthog(eid: str, ref: str, summary: str, support: str) -> EvidenceLed
                 metric="metric_summary",
                 value=support,
             ),
-            cached=False,
-            row_count=1,
         ),
     )
 
@@ -1284,6 +1285,14 @@ STRESS_CASES: list[EvaluatorStressCase] = [
                 "8 tickets on mobile top-up failure",
                 "Customer tickets report top-up failed without receipt.",
             ),
+        ],
+        source_failures=[
+            {
+                "error_type": "timeout",
+                "message": "Telco adapter telemetry was unavailable for the selected period.",
+                "attempted_source": "posthog",
+                "details": {"missing_signal": "telco adapter logs and partner telemetry"},
+            }
         ],
         candidate_recommendation=ProductRecommendation(
             problem_statement="Customer complaints indicate mobile top-up failures, but root cause cannot be established due to lack of adapter telemetry.",

@@ -61,10 +61,8 @@ test-results/
 /AGENTS.md
 /walkthrough.md
 
-# Private portfolio preparation
-/docs/project/05_AI_PM_INTERVIEW_GUIDE.md
-
 # Generated or superseded evaluation work products
 /evaluations/scratch/
 /evaluations/runs/*checkpoint*.json
 /evaluations/human_ratings/
+/evaluations/reviews/workspace/

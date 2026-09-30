@@ -78,6 +78,7 @@ Agents access evidence only through typed, role-bound domain tools. They are rea
 
 A decision brief is only useful if a product manager can trust where its claims came from. PMLytics AI therefore checks that:
 
+- the investigation queried the right sources and retrieved the expected evidence;
 - citations resolve to evidence the system actually retrieved;
 - observations, interpretations, and hypotheses remain distinct;
 - contradictory sources are acknowledged rather than silently combined;
@@ -85,17 +86,20 @@ A decision brief is only useful if a product manager can trust where its claims 
 - recommendations and confidence levels are proportionate to the evidence;
 - agent and revision loops remain within defined limits.
 
-Code-based checks enforce objective requirements such as valid citations and execution bounds. A separate LLM-based reviewer checks whether the analysis stays close to the evidence, handles disagreement between sources, avoids mistaking correlation for cause, and supports the recommended action. That reviewer passed all 15 cases in a targeted stress test after a missing evidence field was identified and restored.
+Code-based checks enforce objective requirements such as valid citations and execution bounds. A separate LLM-based reviewer checks whether the analysis stays close to the supplied evidence, handles disagreement between sources, avoids mistaking correlation for cause, and supports the recommended action. The 15-case development stress suite reached 15/15 after a missing evidence field in the evaluator packet was identified and restored. In a separate five-case calibration pilot, a blind independent product-manager review matched the GPT-5.4 judge on every verdict and severity, with no false passes or false failures. The five cases came from the development set, so this is evidence that the review protocol works on that sample, not a held-out benchmark or a claim of universal judge reliability.
+
+A later live investigation exposed a separate gap: a recommendation can be well grounded in its retrieved packet while the packet itself is incomplete because the agents used poor query semantics. Retrieval quality is now treated separately from reasoning quality, and the end-to-end retrieval gate remains work in progress.
 
 In one controlled three-scenario test, every citation resolved to retrieved evidence and all three reports received at least 18/20 from the reviewer. Average investigation time was 109.10 seconds and average model cost was $0.0656. These results describe that test on selected synthetic scenarios; they are not production guarantees or proof that a multi-agent design is always better.
 
-See [Evaluation, Performance, and Failures](docs/project/03_EVALUATION_PERFORMANCE_AND_FAILURES.md).
+See [AI Evaluation, Failures, and Learnings](docs/project/03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md).
 
 ## Current limitations
 
 - Pocket is the fictional fintech company represented in the demonstration data. No real Pocket customer data is used.
 - Zendesk and Jira are mocked, and all demo evidence is synthetic.
 - The system has not been validated on production customer data or sustained production traffic.
+- End-to-end retrieval correctness across the four demo scenarios is not yet a completed release gate.
 - Model latency and cost vary with provider conditions and whether revision is required.
 - Workflow recovery is durable at LangGraph node boundaries. An ambiguous in-flight paid request requires explicit user recovery rather than a silent retry.
 - Enterprise organisations, tenant administration, RBAC, SSO, billing, and autonomous write actions are not implemented.
@@ -189,10 +193,14 @@ docs/         Specifications, ADRs, phase reports, and project knowledge base
 
 ## Documentation
 
-- [Current state](docs/project/01_CURRENT_STATE.md)
-- [Product and architecture](docs/project/02_PRODUCT_AND_ARCHITECTURE.md)
-- [Evaluation, performance, and failures](docs/project/03_EVALUATION_PERFORMANCE_AND_FAILURES.md)
-- [Decisions and evolution](docs/project/04_DECISIONS_AND_EVOLUTION.md)
+- [Product case study](docs/PMLYTICS_AI_PORTFOLIO_CASE_STUDY.md): the end-to-end product, architecture, evaluation, failure, and learning story
+- [AI Product Strategy](docs/project/06_AI_PRODUCT_STRATEGY.md): target users, positioning, adoption, business outcomes, pricing hypotheses, and defensibility
+- [AI Operating and Safe Release Plan](docs/project/07_AI_OPERATING_AND_SAFE_RELEASE_PLAN.md): ownership, release gates, incident response, provider controls, and current readiness
+- [AI evaluation, failures, and learnings](docs/project/03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md): how quality was measured, what failed, and what changed
+- [Product and architecture](docs/project/02_PRODUCT_AND_ARCHITECTURE.md): the product problem, agent boundaries, request lifecycle, and technical trade-offs
+- [Current state](docs/project/01_CURRENT_STATE.md): what is implemented, persisted, validated, and still limited
+- [Decisions and evolution](docs/project/04_DECISIONS_AND_EVOLUTION.md): how major product and architecture decisions changed over time
+- [PMLytics AI Q&A](docs/project/05_PMLYTICS_AI_Q_AND_A.md): concise and deep answers for portfolio, product, and technical discussions
 
 
 ## Demo

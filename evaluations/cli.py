@@ -15,6 +15,15 @@ from app.integrations.posthog.adapter import PostHogAdapter
 from app.integrations.zendesk.adapter import ZendeskAdapter
 from app.tools.registry import ToolRegistry
 
+from evaluations.calibration.live_gate import (
+    calculate_preflight,
+    require_paid_evaluation_opt_in,
+)
+from evaluations.config import (
+    DEFAULT_PRICING_RATES,
+    MODE1_MATCHED_BUDGET,
+    MODE2_NATURAL_BUDGETS,
+)
 from evaluations.dataset.loader import get_scenarios
 from evaluations.evaluators.judge import LLMJudgeEvaluator
 from evaluations.harness import EvaluationHarness
@@ -31,6 +40,23 @@ logger = logging.getLogger("evaluations.cli")
 async def main_async() -> int:
     """Async CLI entry point."""
     parser = argparse.ArgumentParser(description="PMLytics AI Evaluation Runner")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Explicitly allow paid provider execution for this command",
+    )
+    parser.add_argument(
+        "--max-provider-cost-usd",
+        type=float,
+        default=0.0,
+        help="Maximum provider spend approved for this command",
+    )
+    parser.add_argument(
+        "--max-runs",
+        type=int,
+        default=0,
+        help="Maximum investigation runs approved for this command",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # 1. Run single batch
@@ -60,6 +86,45 @@ async def main_async() -> int:
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
     )
+
+    if args.command == "run":
+        selected_scenarios = get_scenarios(args.split)
+        planned_runs = len(selected_scenarios) * args.reps
+        selected_model = args.model
+        max_calls_per_run = (
+            MODE1_MATCHED_BUDGET.max_llm_calls
+            if args.mode == "mode1_matched"
+            else max(budget.max_llm_calls for budget in MODE2_NATURAL_BUDGETS.values())
+        )
+    elif args.command == "regression":
+        planned_runs = len(get_scenarios("val"))
+        selected_model = "openai/gpt-5.4"
+        max_calls_per_run = MODE1_MATCHED_BUDGET.max_llm_calls
+    else:
+        planned_runs = len(get_scenarios("val")) * 3 * 3
+        selected_model = "openai/gpt-5.4"
+        max_calls_per_run = MODE1_MATCHED_BUDGET.max_llm_calls
+
+    if args.max_runs <= 0 or planned_runs > args.max_runs:
+        raise PermissionError(
+            f"Planned evaluation runs ({planned_runs}) exceed the explicit --max-runs approval "
+            f"({args.max_runs})."
+        )
+    pricing = DEFAULT_PRICING_RATES.get(selected_model)
+    if pricing is None:
+        raise ValueError(f"No checked-in pricing snapshot exists for {selected_model}")
+    preflight = calculate_preflight(
+        case_count=planned_runs,
+        cache_hits=0,
+        model_name=selected_model,
+        estimated_input_tokens_per_case=max_calls_per_run * 1200,
+        maximum_output_tokens_per_case=max_calls_per_run * 350,
+        input_cost_per_million=pricing.input_cost_per_million,
+        output_cost_per_million=pricing.output_cost_per_million,
+        approved_maximum_cost_usd=args.max_provider_cost_usd,
+    )
+    print(preflight.model_dump_json(indent=2))
+    require_paid_evaluation_opt_in(live=args.live, preflight=preflight)
 
     settings = get_settings()
     llm_client = OpenRouterClient(

@@ -192,13 +192,13 @@ PMLytics AI did not arrive at its current architecture in one step. This documen
 
 **Evidence.** Deterministic validators caught citation and contract failures. The LLM-based evaluator captured semantic quality but initially lacked a support field. Initial human comparison was informationally asymmetric and sometimes lenient. A later supposedly clean human re-rating was invalidated when a provenance audit showed that it had been generated in the agent environment rather than by independent human raters. A large architecture benchmark then failed operationally because of HTTP 402 provider-credit errors.
 
-**Decision.** Use deterministic checks, a version-controlled LLM-based evaluator, stress scenarios, and qualitative human review. Treat deterministic checks as hard gates, do not describe the evaluator as human-qualified ground truth, and do not publish invalid human-calibration or benchmark aggregates.
+**Decision.** Use deterministic checks, a version-controlled LLM-based evaluator, stress scenarios, and independent human audit. Treat deterministic checks as hard gates, do not describe the evaluator as human-qualified ground truth, and do not publish invalid human-calibration or benchmark aggregates. Separate product-owned cases and atomic rubrics from runner infrastructure, require reviewer provenance, and keep paid evaluation fail-closed.
 
 **Trade-off.** The result is more honest but less convenient than a single headline score.
 
-**What happened later.** Stress performance reached 15/15 after evaluator-context repair, while the incomplete large benchmark remained documented as a limitation.
+**What happened later.** Stress performance reached 15/15 after evaluator-context repair. A later atomic pilot first exposed a defective missing-source packet, then used content-addressed caching to rerun only the corrected case. A blind independent product-manager review matched the final GPT-5.4 verdict and severity on all five pilot cases, with zero false passes or false failures. The incomplete large benchmark remained documented as a separate limitation. A subsequent paid wallet-funding investigation revealed that a cautious, well-cited recommendation could still be based on an incorrectly empty evidence packet when live query semantics were wrong.
 
-**Current state.** Evaluation supports specific quality claims, not universal superiority or production readiness.
+**Current state.** The 15 stress cases are an editable development catalog, not universal human ground truth. Reviewer-identical packets are content-hashed, agreement reporting surfaces critical false passes, and the completed five-case independent pilot is preserved with its limits. The held-out set remains empty because the audited pilot used development cases. Evaluation now distinguishes retrieval quality from reasoning quality, but the stronger end-to-end retrieval gate is still to be implemented. Evaluation supports specific quality claims, not universal superiority or production readiness.
 
 **At larger scale.** I would establish blind expert rubrics, inter-rater agreement, production outcome measures, regression gates, and cost/latency budgets by query class.
 
@@ -252,9 +252,10 @@ The next expansion should be justified by a measured user need. If action execut
 
 - [Current state](01_CURRENT_STATE.md)
 - [Product and architecture](02_PRODUCT_AND_ARCHITECTURE.md)
-- [Evaluation, performance, and failures](03_EVALUATION_PERFORMANCE_AND_FAILURES.md)
+- [AI evaluation, failures, and learnings](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md)
 - [ADR-0012: performance optimization](../decisions/ADR-0012-phase12-performance-optimization.md)
 - [ADR-0018: Supabase auth and persistence](../decisions/ADR-0018-supabase-auth-and-investigation-persistence.md)
 - [ADR-0019: checkpoint recovery](../decisions/ADR-0019-postgres-checkpointed-investigation-recovery.md)
 - [ADR-0025: post-revision quality gate](../decisions/ADR-0025-post-revision-quality-gate.md)
 - [ADR-0026: report projection and bounded repair](../decisions/ADR-0026-report-projection-and-bounded-specialist-repair.md)
+- [ADR-0027: product-owned cases and audited judge calibration](../decisions/ADR-0027-product-owned-evaluation-cases-and-audited-judge-calibration.md)

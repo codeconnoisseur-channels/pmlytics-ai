@@ -1,0 +1,20 @@
+{
+  "pilot_id": "atomic_judge_pilot_v1",
+  "status": "completed",
+  "purpose": "A small diagnostic check of the atomic judge before any wider paid evaluation.",
+  "rubric_version": "atomic_semantic_v2",
+  "reference_type": "author_review_diagnostic_not_ground_truth",
+  "review_case_ids": [
+    "review_case_002",
+    "review_case_006",
+    "review_case_007",
+    "review_case_013",
+    "review_case_014"
+  ],
+  "selection_reason": "Covers unsupported evidence, qualified causality, contradiction handling, missing-source discipline, and adversarial evidence.",
+  "maximum_provider_calls": 5,
+  "maximum_output_tokens_per_case": 1000,
+  "estimated_input_tokens_per_case": 6000,
+  "completed_at_utc": "2026-09-29T14:18:38Z",
+  "result": "judge_pilot_v1_result.json"
+}

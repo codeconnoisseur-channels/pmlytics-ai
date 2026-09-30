@@ -107,11 +107,13 @@ class OpenRouterClient:
         base_url: str = "https://openrouter.ai/api/v1",
         timeout_seconds: float = 60.0,
         http_client: httpx.AsyncClient | None = None,
+        provider_routing: dict[str, object] | None = None,
     ) -> None:
         self._api_key = api_key
         self._base_url = base_url.rstrip("/")
         self._timeout_seconds = timeout_seconds
         self._external_client = http_client
+        self._provider_routing = provider_routing
         self._semaphore = asyncio.Semaphore(1)
 
     def _get_headers(self) -> dict[str, str]:
@@ -184,6 +186,8 @@ class OpenRouterClient:
                 payload["tool_choice"] = tool_choice
         if response_format:
             payload["response_format"] = response_format
+        if self._provider_routing:
+            payload["provider"] = self._provider_routing
 
         url = f"{self._base_url}/chat/completions"
         headers = self._get_headers()

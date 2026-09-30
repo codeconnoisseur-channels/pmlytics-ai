@@ -12,16 +12,24 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TypedDict, cast
 
 from app.config.settings import get_settings
 from app.integrations.llm.client import OpenRouterClient
 from app.orchestration.state import InvestigationState
 
+from evaluations.calibration.live_gate import (
+    calculate_preflight,
+    require_paid_evaluation_opt_in,
+)
+from evaluations.config import DEFAULT_PRICING_RATES
 from evaluations.dataset.evaluator_stress_suite import (
     STRESS_CASES,
+    BehavioralInvariant,
     EvaluatorStressCase,
     evaluate_behavioral_invariant,
 )
@@ -41,16 +49,32 @@ CHECKPOINT_PATH = Path("evaluations/runs/phase9_evaluator_stress_checkpoint.json
 REPORT_PATH = Path("evaluations/runs/phase9_evaluator_stress_test_report.md")
 
 
-def _load_checkpoint() -> dict[str, dict]:
+class InvariantResult(TypedDict):
+    invariant: BehavioralInvariant
+    passed: bool
+    rationale: str
+
+
+class StressCaseResult(TypedDict):
+    case: EvaluatorStressCase
+    report: EvaluationJudgeReport
+    invariant_results: list[InvariantResult]
+    all_passed: bool
+
+
+def _load_checkpoint() -> dict[str, dict[str, object]]:
     if CHECKPOINT_PATH.exists():
         try:
-            return json.loads(CHECKPOINT_PATH.read_text(encoding="utf-8"))
+            data = json.loads(CHECKPOINT_PATH.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                return cast(dict[str, dict[str, object]], data)
+            return {}
         except Exception:
             return {}
     return {}
 
 
-def _save_checkpoint(data: dict[str, dict]) -> None:
+def _save_checkpoint(data: dict[str, dict[str, object]]) -> None:
     CHECKPOINT_PATH.parent.mkdir(parents=True, exist_ok=True)
     CHECKPOINT_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
@@ -59,6 +83,8 @@ async def run_stress_suite(
     case_ids: list[str] | None = None,
     concurrency: int = 2,
     force_rerun: bool = False,
+    live: bool = False,
+    approved_maximum_cost_usd: float = 0.0,
 ) -> bool:
     """Execute the 15-case behavioral stress suite once and generate the report."""
     print("=" * 80)
@@ -80,10 +106,6 @@ async def run_stress_suite(
 
     print("  Status: MATCH (Frozen prompt verified bit-for-bit unchanged)\n")
 
-    settings = get_settings()
-    llm = OpenRouterClient(api_key=settings.openrouter_api_key)
-    judge = LLMJudgeEvaluator(llm_client=llm, model_name=settings.default_model)
-
     checkpoint = {} if force_rerun else _load_checkpoint()
 
     # Filter target cases
@@ -91,12 +113,35 @@ async def run_stress_suite(
     if case_ids:
         target_cases = [c for c in STRESS_CASES if c.case_id in case_ids]
 
+    cache_hits = sum(1 for case in target_cases if case.case_id in checkpoint)
+    selected_model = os.getenv("DEFAULT_MODEL", "openai/gpt-5.4")
+    pricing = DEFAULT_PRICING_RATES.get(selected_model)
+    if pricing is None:
+        raise ValueError(f"No checked-in pricing snapshot exists for {selected_model}")
+    preflight = calculate_preflight(
+        case_count=len(target_cases),
+        cache_hits=cache_hits,
+        model_name=selected_model,
+        estimated_input_tokens_per_case=12000,
+        maximum_output_tokens_per_case=4096,
+        input_cost_per_million=pricing.input_cost_per_million,
+        output_cost_per_million=pricing.output_cost_per_million,
+        approved_maximum_cost_usd=approved_maximum_cost_usd,
+    )
+    print("Paid evaluation preflight:")
+    print(preflight.model_dump_json(indent=2))
+    require_paid_evaluation_opt_in(live=live, preflight=preflight)
+
+    settings = get_settings()
+    llm = OpenRouterClient(api_key=settings.openrouter_api_key)
+    judge = LLMJudgeEvaluator(llm_client=llm, model_name=settings.default_model)
+
     print(f"Total stress cases: {len(STRESS_CASES)} (Executing {len(target_cases)} this run)")
     print(f"Model: {settings.default_model} (temperature: 0.0, concurrency: {concurrency})\n")
 
     sem = asyncio.Semaphore(concurrency)
 
-    async def evaluate_single_case(case: EvaluatorStressCase, idx: int):
+    async def evaluate_single_case(case: EvaluatorStressCase, idx: int) -> StressCaseResult:
         if case.case_id in checkpoint:
             print(
                 f"[{idx}/{len(STRESS_CASES)}] '{case.case_id}' already in checkpoint, using cached."
@@ -146,7 +191,7 @@ async def run_stress_suite(
                 print(f"  Completed '{case.case_id}' -> checkpoint updated.")
 
         # Evaluate behavioral invariants
-        case_invariant_results = []
+        case_invariant_results: list[InvariantResult] = []
         case_passed = True
 
         for inv in case.invariants:
@@ -175,7 +220,7 @@ async def run_stress_suite(
             "all_passed": case_passed,
         }
 
-    tasks = [evaluate_single_case(case, idx) for idx, case in enumerate(STRESS_CASES, 1)]
+    tasks = [evaluate_single_case(case, idx) for idx, case in enumerate(target_cases, 1)]
     results = await asyncio.gather(*tasks)
 
     all_invariants_passed = all(r["all_passed"] for r in results)
@@ -196,7 +241,11 @@ async def run_stress_suite(
     return all_invariants_passed
 
 
-def _generate_markdown_report(prompt_sha: str, results: list[dict], overall_passed: bool) -> str:
+def _generate_markdown_report(
+    prompt_sha: str,
+    results: list[StressCaseResult],
+    overall_passed: bool,
+) -> str:
     timestamp = datetime.now(UTC).isoformat()
     lines = [
         "# Phase 9 Behavioral Evaluator Stress Test Report",
@@ -229,19 +278,16 @@ def _generate_markdown_report(prompt_sha: str, results: list[dict], overall_pass
     ]
 
     for res in results:
-        case: EvaluatorStressCase = res["case"]
-        if "report" in res:
-            rep: EvaluationJudgeReport = res["report"]
-            scores = f"{rep.groundedness.score}/{rep.cross_source_reasoning.score}/{rep.contradiction_handling.score}/{rep.causal_discipline.score}/{rep.recommendation_defensibility.score}"
-        else:
-            scores = "ERR"
+        summary_case = res["case"]
+        summary_report = res["report"]
+        scores = f"{summary_report.groundedness.score}/{summary_report.cross_source_reasoning.score}/{summary_report.contradiction_handling.score}/{summary_report.causal_discipline.score}/{summary_report.recommendation_defensibility.score}"
 
         for inv_res in res["invariant_results"]:
             inv = inv_res["invariant"]
             passed = inv_res["passed"]
             status = "PASS" if passed else "**FAIL**"
             lines.append(
-                f"| `{case.case_id}` | {case.behavior_under_test} | `{inv.target_dimension}` | `{scores}` | {inv.behavior_name} | {status} |"
+                f"| `{summary_case.case_id}` | {summary_case.behavior_under_test} | `{inv.target_dimension}` | `{scores}` | {inv.behavior_name} | {status} |"
             )
 
     lines.extend(
@@ -280,11 +326,11 @@ def _generate_markdown_report(prompt_sha: str, results: list[dict], overall_pass
     )
 
     for idx, res in enumerate(results, 1):
-        case: EvaluatorStressCase = res["case"]
-        lines.append(f"### Case {idx}: `{case.case_id}` ({case.name})")
-        lines.append(f"- **Behavior Under Test**: {case.behavior_under_test}")
-        lines.append(f"- **Product Area**: {case.product_area}")
-        lines.append(f'- **User Query**: *"{case.user_query}"*')
+        detail_case = res["case"]
+        lines.append(f"### Case {idx}: `{detail_case.case_id}` ({detail_case.name})")
+        lines.append(f"- **Behavior Under Test**: {detail_case.behavior_under_test}")
+        lines.append(f"- **Product Area**: {detail_case.product_area}")
+        lines.append(f'- **User Query**: *"{detail_case.user_query}"*')
         lines.append(f"- **Case Status**: **{'PASS' if res['all_passed'] else 'FAIL'}**")
         lines.append("")
 
@@ -363,8 +409,23 @@ def _generate_markdown_report(prompt_sha: str, results: list[dict], overall_pass
 
 if __name__ == "__main__":
     force = "--force" in sys.argv
+    live = "--live" in sys.argv
     concurrency = 2
+    approved_maximum_cost_usd = 0.0
+    case_ids: list[str] | None = None
     for arg in sys.argv:
         if arg.startswith("--concurrency="):
             concurrency = int(arg.split("=")[1])
-    asyncio.run(run_stress_suite(concurrency=concurrency, force_rerun=force))
+        elif arg.startswith("--max-provider-cost-usd="):
+            approved_maximum_cost_usd = float(arg.split("=")[1])
+        elif arg.startswith("--case-ids="):
+            case_ids = [case_id for case_id in arg.split("=", 1)[1].split(",") if case_id]
+    asyncio.run(
+        run_stress_suite(
+            case_ids=case_ids,
+            concurrency=concurrency,
+            force_rerun=force,
+            live=live,
+            approved_maximum_cost_usd=approved_maximum_cost_usd,
+        )
+    )

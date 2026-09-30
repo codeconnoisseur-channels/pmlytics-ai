@@ -57,7 +57,11 @@ async def test_complete_formats_payload_and_parses_tool_calls() -> None:
     )
     mock_http.post = AsyncMock(return_value=mock_resp)
 
-    client = OpenRouterClient(api_key="sk-or-test-key", http_client=mock_http)
+    client = OpenRouterClient(
+        api_key="sk-or-test-key",
+        http_client=mock_http,
+        provider_routing={"order": ["OpenAI"], "allow_fallbacks": False},
+    )
     messages = [
         LLMMessage(role="system", content="System instruction"),
         LLMMessage(role="user", content="User prompt"),
@@ -91,6 +95,7 @@ async def test_complete_formats_payload_and_parses_tool_calls() -> None:
     assert headers["HTTP-Referer"] == "https://pocket.app/discovery"
     payload = call_kwargs["json"]
     assert payload["model"] == "openai/gpt-5.4"
+    assert payload["provider"] == {"order": ["OpenAI"], "allow_fallbacks": False}
     assert len(payload["messages"]) == 2
     assert payload["tools"] == tools
 

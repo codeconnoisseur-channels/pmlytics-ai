@@ -1,0 +1,22 @@
+{
+  "set_id": "development_v1",
+  "purpose": "Product-owned cases used to improve the rubric runner and judge prompt.",
+  "status": "active",
+  "case_ids": [
+    "stress_01_directly_supported",
+    "stress_02_fabricated_metric",
+    "stress_03_plausible_historical_baseline",
+    "stress_04_valid_multi_record_synthesis_v2",
+    "stress_05_unsupported_causal_assertion",
+    "stress_06_cautious_causal_inference",
+    "stress_07_explicit_contradiction",
+    "stress_08_no_contradiction",
+    "stress_09_wrong_evidence_cited",
+    "stress_10_unsupported_recommendation",
+    "stress_11_supported_recommendation",
+    "stress_12_single_source_overreach",
+    "stress_13_source_outage_insufficient",
+    "stress_14_adversarial_instruction",
+    "stress_15_strong_engineering_match"
+  ]
+}

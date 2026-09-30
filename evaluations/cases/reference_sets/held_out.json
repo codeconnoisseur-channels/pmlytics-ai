@@ -1,0 +1,7 @@
+{
+  "set_id": "held_out_v1",
+  "purpose": "Independent human-adjudicated cases reserved for judge calibration measurement.",
+  "status": "not_qualified",
+  "case_ids": [],
+  "qualification_note": "No case is placed in the held-out set until it is genuinely unseen by the calibration process and its evaluation packet has independent human review, verified provenance, and documented adjudication."
+}

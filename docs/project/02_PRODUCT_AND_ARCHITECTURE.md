@@ -73,7 +73,7 @@ The design uses separate roles because each evidence source has a different epis
 | Outputs | Typed `InvestigationPlan` and specialist tasks. |
 | Tool access | No evidence-source tools. |
 | Why the boundary exists | Planning should decide what evidence is needed without silently becoming a retriever or answerer. |
-| Main failure risk | Over-broad tasks that waste tool calls or encode the user's premise as a conclusion. |
+| Main failure risk | Over-broad tasks that waste tool calls, or accepting the user's premise before defining how each source should test it. |
 
 ### Research Agent
 
@@ -85,7 +85,7 @@ The design uses separate roles because each evidence source has a different epis
 | Outputs | Typed customer findings with evidence references. |
 | Tool access | `search_tickets`, `get_ticket`, `get_ticket_comments`. |
 | Why the boundary exists | Customer statements must not be blended with analytics or engineering assumptions before provenance is preserved. |
-| Main failure risk | Treating complaint volume as population prevalence, or summarising ticket IDs without reading available content. |
+| Main failure risk | Treating complaint volume as population prevalence, using searches that are too narrow for customer language, or summarising ticket IDs without reading available content. |
 
 ### Analytics Agent
 
@@ -97,7 +97,7 @@ The design uses separate roles because each evidence source has a different epis
 | Outputs | Typed analytics findings with query context and evidence references. |
 | Tool access | `query_analytics`. |
 | Why the boundary exists | Measurement requires a different discipline from interpreting complaints or issue status. |
-| Main failure risk | Asking an invalid funnel question, hiding useful tabular results when a scalar is absent, or claiming causality from correlation. |
+| Main failure risk | Asking an invalid funnel question, supplying a semantically wrong property value that still passes schema validation, hiding useful tabular results when a scalar is absent, or claiming causality from correlation. |
 
 ### Engineering Agent
 
@@ -133,7 +133,7 @@ The design uses separate roles because each evidence source has a different epis
 | Outputs | Typed `PASS` or `REVISE` review with evidence-linked issues. |
 | Tool access | None. |
 | Why the boundary exists | Generation and review have different incentives. A separate review pass can challenge a coherent but unsupported narrative. |
-| Main failure risk | Becoming an unbounded perfection loop, penalising reasonable uncertainty, or requesting stylistic rather than material revisions. |
+| Main failure risk | Becoming an unbounded perfection loop, penalising reasonable uncertainty, or approving a well-written answer without knowing that relevant evidence was omitted upstream. |
 
 ### Why specialists run in parallel
 
@@ -219,6 +219,20 @@ This avoids both pretending a dead task is still running and silently spending t
 **Own:** Immutable evidence identity, source attribution, typed payload retention, and failed-attempt separation.  
 **Do not own:** Whether the evidence is sufficient for a product decision.  
 **Trade-off:** More state and prompt-management complexity, but defensible citations and auditable synthesis.
+
+### Retrieval correctness
+
+**Why it exists:** A report can cite every record correctly and still be wrong for the user's question if the agents searched with the wrong terms, filters, events, or property values. A successful API response proves that a tool executed, not that the right evidence was retrieved.
+
+**Owns:** Query validity beyond basic schema shape, coverage of expected source concepts, recovery from suspicious zero-result searches, and evidence-adequacy checks before synthesis.
+
+**Does not own:** The PM recommendation or the Critic's judgement about claims already present in the evidence packet.
+
+**Trade-off:** Stronger retrieval gates add domain rules and scenario maintenance, but they prevent a fluent synthesis from hiding an incomplete investigation.
+
+The current implementation has typed tool inputs, broad-discovery guidance, source-specific specialists, and one bounded follow-up round. Those controls are useful but have not yet proved end-to-end retrieval correctness. In a later wallet-funding investigation, the Analytics Agent supplied a domain value that was structurally valid but semantically wrong, while the Research Agent used narrow failure wording. Both sources returned successful responses, yet relevant evidence was missed. The PM and Critic then reasoned cautiously over an incomplete packet.
+
+That failure clarifies the boundary of the existing architecture. The Evidence Ledger proves where retrieved evidence came from; it cannot prove that omitted evidence does not exist. The Critic should not receive source tools, because that would weaken the retrieval and synthesis boundary. The next safeguard belongs before synthesis: deterministic validation of important domain values, retrieval regression cases for known scenarios, broader recovery when a narrow search returns zero, and an evidence-adequacy gate that can request one targeted follow-up or return an explicit limitation.
 
 ### Facts, inferences, and hypotheses
 
@@ -307,3 +321,5 @@ SSE gives immediate server-authoritative lifecycle updates without a bidirection
 - [ADR-0019: checkpoint recovery](../decisions/ADR-0019-postgres-checkpointed-investigation-recovery.md)
 - [ADR-0025: restored post-revision Critic](../decisions/ADR-0025-post-revision-quality-gate.md)
 - [ADR-0026: report projection and specialist repair](../decisions/ADR-0026-report-projection-and-bounded-specialist-repair.md)
+- [ADR-0027: product-owned evaluation cases and audited judge calibration](../decisions/ADR-0027-product-owned-evaluation-cases-and-audited-judge-calibration.md)
+- [Current evaluation strategy](../evaluation/EVALUATION_STRATEGY.md)
