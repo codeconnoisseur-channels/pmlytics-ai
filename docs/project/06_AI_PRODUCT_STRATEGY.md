@@ -462,7 +462,7 @@ These criteria keep the architecture falsifiable. The product should earn its co
 ## Related documentation
 
 - [Current state](01_CURRENT_STATE.md)
-- [Product and architecture](02_PRODUCT_AND_ARCHITECTURE.md)
+- [Architecture](02_ARCHITECTURE.md)
 - [AI evaluation, failures, and learnings](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md)
 - [Decisions and evolution](04_DECISIONS_AND_EVOLUTION.md)
 - [PMLytics AI Q&A](05_PMLYTICS_AI_Q_AND_A.md)

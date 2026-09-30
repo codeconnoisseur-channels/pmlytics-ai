@@ -14,7 +14,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** The intended user is a PM or product lead. The primary job is decision support, not business intelligence replacement. The system can recommend action, recommend validation first, or say that available evidence is insufficient.
 
-**Repository evidence/source.** [Current state](01_CURRENT_STATE.md), [product and architecture](02_PRODUCT_AND_ARCHITECTURE.md), and the current [`README`](../../README.md).
+**Repository evidence/source.** [Current state](01_CURRENT_STATE.md), [architecture](02_ARCHITECTURE.md), and the current [`README`](../../README.md).
 
 **Likely follow-ups.** How would you measure product value? What decisions are in scope? When should a PM ignore the recommendation?
 
@@ -26,7 +26,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** AI earns its place through ambiguity handling, not through basic retrieval. The comparison is not “AI versus dashboards”; PMLytics AI consumes analytics evidence and adds an investigation layer above it.
 
-**Repository evidence/source.** [Why AI and product job](02_PRODUCT_AND_ARCHITECTURE.md#why-ai), [decision history](04_DECISIONS_AND_EVOLUTION.md#2-use-ai-for-synthesis-under-ambiguity-not-for-every-operation).
+**Repository evidence/source.** [Why AI and product job](02_ARCHITECTURE.md#why-ai), [decision history](04_DECISIONS_AND_EVOLUTION.md#2-use-ai-for-synthesis-under-ambiguity-not-for-every-operation).
 
 **Likely follow-ups.** What remains deterministic? When would you route a question to a dashboard instead? How do you stop hallucinations?
 
@@ -52,7 +52,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Planner, Research, Analytics, Engineering, PM, and Critic are logical AI roles. Evidence assessment and targeted follow-up are orchestration controls, not extra agents. A future router could use a simpler path for low-risk questions.
 
-**Repository evidence/source.** [Role boundaries](02_PRODUCT_AND_ARCHITECTURE.md#why-multi-agent), [evaluation limits](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md#what-evaluation-has-not-established).
+**Repository evidence/source.** [Role boundaries](02_ARCHITECTURE.md#why-multi-agent), [evaluation limits](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md#what-evaluation-has-not-established).
 
 **Likely follow-ups.** Why not four agents? How do agents communicate? What would convince you to collapse the design?
 
@@ -76,7 +76,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** No MCP, RAG, long-term agent memory, or autonomous writes in the current scope. These are safety and evaluation boundaries, not missing buzzwords.
 
-**Repository evidence/source.** [Architecture choices](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-choices), [scope boundaries](04_DECISIONS_AND_EVOLUTION.md#13-deliberate-scope-boundaries).
+**Repository evidence/source.** [Architecture choices](02_ARCHITECTURE.md#important-architecture-choices), [scope boundaries](04_DECISIONS_AND_EVOLUTION.md#13-deliberate-scope-boundaries).
 
 **Likely follow-ups.** What action would you automate first? Where should approval live? How would you evaluate an action agent?
 
@@ -90,7 +90,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Live asyncio tasks and subscriber queues remain process-local. If a paid provider request was in flight when the process died, the system requires explicit resume to avoid duplicate spend.
 
-**Repository evidence/source.** [Current architecture](01_CURRENT_STATE.md#current-architecture), [request lifecycle](02_PRODUCT_AND_ARCHITECTURE.md#architecture-walkthrough).
+**Repository evidence/source.** [Current architecture](01_CURRENT_STATE.md#current-architecture), [request lifecycle](02_ARCHITECTURE.md#architecture-walkthrough).
 
 **Likely follow-ups.** Where is authorization enforced? What happens on restart? Why use both events and checkpoints?
 
@@ -102,7 +102,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Typed state provides the contract between nodes. The API owns user-visible lifecycle; the graph owns investigation progression. Next.js is a presentation and session layer, not the orchestration engine.
 
-**Repository evidence/source.** [Architecture concepts](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-concepts), [current state](01_CURRENT_STATE.md).
+**Repository evidence/source.** [Architecture concepts](02_ARCHITECTURE.md#important-architecture-concepts), [current state](01_CURRENT_STATE.md).
 
 **Likely follow-ups.** Could a queue replace LangGraph? How do checkpoints work? Why not implement everything in Next.js?
 
@@ -114,7 +114,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Provenance does not prove causality; it proves where a claim came from. The ledger is not RAG or long-term memory. It is investigation-scoped state.
 
-**Repository evidence/source.** [Evidence model](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-concepts), [failure analysis](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md#part-iii-failures-that-changed-the-system), [ADR-0020](../decisions/ADR-0020-nested-evidence-audit-records.md).
+**Repository evidence/source.** [Evidence model](02_ARCHITECTURE.md#important-architecture-concepts), [failure analysis](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md#part-iii-failures-that-changed-the-system), [ADR-0020](../decisions/ADR-0020-nested-evidence-audit-records.md).
 
 **Likely follow-ups.** How do you deduplicate evidence? What if a cited record changes? Can an LLM invent an evidence ID?
 
@@ -126,7 +126,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Distinguish transport failure, source failure, invalid output, insufficient evidence, and provider failure. “Completed” must mean a valid final state, not merely that a task stopped.
 
-**Repository evidence/source.** [Failure handling](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-concepts), [ADR-0019](../decisions/ADR-0019-postgres-checkpointed-investigation-recovery.md), [ADR-0026](../decisions/ADR-0026-report-projection-and-bounded-specialist-repair.md).
+**Repository evidence/source.** [Failure handling](02_ARCHITECTURE.md#important-architecture-concepts), [ADR-0019](../decisions/ADR-0019-postgres-checkpointed-investigation-recovery.md), [ADR-0026](../decisions/ADR-0026-report-projection-and-bounded-specialist-repair.md).
 
 **Likely follow-ups.** What is safe to retry? How do you make retries idempotent? What happens when only Jira fails?
 
@@ -152,7 +152,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Contradiction is useful evidence. Partial-source completion is acceptable only when the decision remains defensible. Confidence concerns evidence strength, not writing certainty.
 
-**Repository evidence/source.** [Evidence concepts](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-concepts), [incomplete evidence failures](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md#part-iii-failures-that-changed-the-system).
+**Repository evidence/source.** [Evidence concepts](02_ARCHITECTURE.md#important-architecture-concepts), [incomplete evidence failures](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md#part-iii-failures-that-changed-the-system).
 
 **Likely follow-ups.** How do you communicate low confidence without overwhelming users? When should the workflow fail entirely? How is targeted follow-up selected?
 
@@ -254,7 +254,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Authentication answers who the caller is; authorization answers which investigation they may access. Public cached sample routes are an explicit exception, not accidental leakage.
 
-**Repository evidence/source.** [Access-control model](01_CURRENT_STATE.md#access-control-model), [architecture ownership](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-concepts).
+**Repository evidence/source.** [Access-control model](01_CURRENT_STATE.md#access-control-model), [architecture ownership](02_ARCHITECTURE.md#important-architecture-concepts).
 
 **Likely follow-ups.** How do deletes work? What if the JWT is expired? How would organization sharing change the model?
 
@@ -318,7 +318,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Confidence is not binary. “Investigate further” should not expose internal model failures or raw system jargon. It is a product decision state, not an error state.
 
-**Repository evidence/source.** [Product job](02_PRODUCT_AND_ARCHITECTURE.md#product-job), [limitations and evidence handling](01_CURRENT_STATE.md#current-capabilities).
+**Repository evidence/source.** [Product job](02_ARCHITECTURE.md#product-job), [limitations and evidence handling](01_CURRENT_STATE.md#current-capabilities).
 
 **Likely follow-ups.** How often is this outcome acceptable? How do you keep it from becoming a default? What makes a validation plan actionable?
 
@@ -330,7 +330,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** Citation validity is a necessary but insufficient quality measure. A valid citation can still be weak support for the sentence attached to it.
 
-**Repository evidence/source.** [Evidence Ledger and citations](02_PRODUCT_AND_ARCHITECTURE.md#important-architecture-concepts), [ADR-0020](../decisions/ADR-0020-nested-evidence-audit-records.md).
+**Repository evidence/source.** [Evidence Ledger and citations](02_ARCHITECTURE.md#important-architecture-concepts), [ADR-0020](../decisions/ADR-0020-nested-evidence-audit-records.md).
 
 **Likely follow-ups.** How do you test citation entailment? Can too much evidence reduce usability? Should citations be public?
 
@@ -394,7 +394,7 @@ PMLytics AI is the product. Pocket is the fictional fintech company represented 
 
 **Deep-dive points.** The product is not a replacement for BI, analytics, or enterprise search. It should route simple questions to cheaper paths rather than use the full graph every time. Market demand, buyer ownership, and willingness to pay remain unvalidated.
 
-**Repository evidence/source.** [AI Product Strategy](06_AI_PRODUCT_STRATEGY.md), [product problem](02_PRODUCT_AND_ARCHITECTURE.md#product-problem).
+**Repository evidence/source.** [AI Product Strategy](06_AI_PRODUCT_STRATEGY.md), [product problem](02_ARCHITECTURE.md#product-problem).
 
 **Likely follow-ups.** Why this wedge? Which vertical would you choose first? What user research would you run? What would you exclude from the first commercial version?
 

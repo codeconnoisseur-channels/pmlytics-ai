@@ -251,7 +251,7 @@ The next expansion should be justified by a measured user need. If action execut
 ## Source documents
 
 - [Current state](01_CURRENT_STATE.md)
-- [Product and architecture](02_PRODUCT_AND_ARCHITECTURE.md)
+- [Architecture](02_ARCHITECTURE.md)
 - [AI evaluation, failures, and learnings](03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md)
 - [ADR-0012: performance optimization](../decisions/ADR-0012-phase12-performance-optimization.md)
 - [ADR-0018: Supabase auth and persistence](../decisions/ADR-0018-supabase-auth-and-investigation-persistence.md)

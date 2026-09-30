@@ -1,4 +1,4 @@
-# PMLytics AI: Product and Architecture
+# PMLytics AI: Architecture
 
 This document explains what was built, why AI is appropriate, and how the current architecture supports evidence-grounded product decisions. Detailed schemas and implementation contracts remain in the existing specifications and ADRs.
 

@@ -197,7 +197,7 @@ docs/         Specifications, ADRs, phase reports, and project knowledge base
 - [AI Product Strategy](docs/project/06_AI_PRODUCT_STRATEGY.md): target users, positioning, adoption, business outcomes, pricing hypotheses, and defensibility
 - [AI Operating and Safe Release Plan](docs/project/07_AI_OPERATING_AND_SAFE_RELEASE_PLAN.md): ownership, release gates, incident response, provider controls, and current readiness
 - [AI evaluation, failures, and learnings](docs/project/03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md): how quality was measured, what failed, and what changed
-- [Product and architecture](docs/project/02_PRODUCT_AND_ARCHITECTURE.md): the product problem, agent boundaries, request lifecycle, and technical trade-offs
+- [Architecture](docs/project/02_ARCHITECTURE.md): the product problem, agent boundaries, request lifecycle, and technical trade-offs
 - [Current state](docs/project/01_CURRENT_STATE.md): what is implemented, persisted, validated, and still limited
 - [Decisions and evolution](docs/project/04_DECISIONS_AND_EVOLUTION.md): how major product and architecture decisions changed over time
 - [PMLytics AI Q&A](docs/project/05_PMLYTICS_AI_Q_AND_A.md): concise and deep answers for portfolio, product, and technical discussions

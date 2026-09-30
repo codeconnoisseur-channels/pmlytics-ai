@@ -17,7 +17,7 @@ PMLytics AI is a multi-agent product investigation system that helps product man
 
 ### Explore the project
 
-- [Product and architecture](project/02_PRODUCT_AND_ARCHITECTURE.md)
+- [Architecture](project/02_ARCHITECTURE.md)
 - [AI evaluation, failures, and learnings](project/03_AI_EVALUATION_FAILURES_AND_LEARNINGS.md)
 - [AI Product Strategy](project/06_AI_PRODUCT_STRATEGY.md)
 - [AI Operating and Safe Release Plan](project/07_AI_OPERATING_AND_SAFE_RELEASE_PLAN.md)
