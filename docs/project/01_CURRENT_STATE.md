@@ -144,7 +144,7 @@ Authorization is enforced primarily in FastAPI and the storage adapter:
 - active investigations cannot be deleted until stopped;
 - agents have no database tool and cannot use another investigation as model memory.
 
-Row Level Security is enabled on the application tables as defense in depth for Supabase Data API access. The initial migration defines authenticated owner policies for investigation select/insert/update and event select. The backend still performs mandatory owner checks because its direct pooled database connection may not execute as the browser's authenticated Postgres role. No service-role secret is required in the browser.
+Row Level Security is enabled on every application-owned table in the exposed `public` schema, including Alembic and LangGraph checkpoint tables. Browser-facing Data API grants are revoked from `anon`, `authenticated`, and `service_role`; checkpoint and migration tables have no browser policies. Default privileges also prevent future public-schema tables, sequences, or functions from becoming reachable automatically. FastAPI remains the mandatory authorization boundary and applies owner checks to every investigation operation. No service-role secret is required in the browser.
 
 ## Current capabilities
 

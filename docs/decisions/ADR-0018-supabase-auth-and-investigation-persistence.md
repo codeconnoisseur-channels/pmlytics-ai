@@ -19,6 +19,7 @@ The process-local `InvestigationManager` loses investigations on backend restart
 7. Every persisted investigation record has a non-null Supabase user ID owner. Database access remains behind an application storage adapter; agents receive no database tool and cannot read historical investigations as model context.
 8. Row Level Security will provide defense in depth for user-owned tables, while FastAPI authorization remains mandatory.
 9. Public landing content and precomputed sample scenarios remain accessible without authentication. Starting or accessing a live investigation requires authentication.
+10. Application and workflow tables are not part of the browser-facing Supabase Data API. Grants to `anon`, `authenticated`, and `service_role` are revoked; the backend continues to use its direct PostgreSQL connection and mandatory owner-scoped repository operations.
 
 ## Security Invariants
 
@@ -31,11 +32,14 @@ The process-local `InvestigationManager` loses investigations on backend restart
 - A completed state is durably saved before a completion event is sent to the browser.
 - Lifecycle writes are serialized so a delayed progress update cannot overwrite a terminal state.
 - Persistent history is not long-term agent memory and is never automatically inserted into a new investigation prompt.
+- Every table in the exposed `public` schema has RLS enabled, including internal Alembic and LangGraph checkpoint tables. Internal tables have no browser Data API policy.
+- Default privileges do not automatically expose future tables, sequences, or functions to Supabase Data API roles.
 
 ## Consequences
 
 - The prior Phase 14 deferral of authentication and persistence is superseded for these two capabilities.
 - Authenticated SSE uses a fetch-based stream because native `EventSource` cannot attach a bearer token.
 - Alembic owns the application schema. The initial migration creates owner-scoped investigation and event tables with Row Level Security policies.
+- Security migration `0004` revokes inherited Data API grants and enables default-deny RLS on internal public-schema tables. It is intentionally irreversible because downgrading must not reopen public access.
 - Completed reports survive application restarts. An active record whose process task was lost is truthfully marked interrupted; automatic workflow replay is not implied.
 - Team workspaces, RBAC, social OAuth, enterprise SSO, and billing remain out of scope.

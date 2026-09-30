@@ -187,6 +187,8 @@ Lifecycle events are broadcast to authenticated SSE subscribers and persisted. T
 
 The final state is persisted before a completion event is announced. This ordering prevents the interface from reporting completion before the report is durable.
 
+All application and checkpoint tables in Supabase's exposed `public` schema have RLS enabled. The browser does not use the Data API for investigation storage, so grants to `anon`, `authenticated`, and `service_role` are revoked. Alembic removes inherited and future default grants, and application startup reapplies default-deny security after LangGraph creates or migrates its checkpoint tables.
+
 ### 10. Restart recovery
 
 LangGraph checkpoints state synchronously at node boundaries. A database lease and 30-second heartbeat identify the process that owns active execution. On startup, stale records are claimed atomically:

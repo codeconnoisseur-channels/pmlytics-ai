@@ -20,6 +20,7 @@ from app.integrations.posthog import PostHogAdapter, PostHogClient
 from app.integrations.zendesk import ZendeskAdapter, ZendeskClient
 from app.orchestration.graph import create_investigation_graph
 from app.orchestration.state import InvestigationState
+from app.storage.security import secure_checkpoint_tables
 from app.tools.registry import ToolRegistry
 
 logger = logging.getLogger(__name__)
@@ -88,6 +89,7 @@ class InvestigationService:
         checkpointer = AsyncPostgresSaver(pool)
         try:
             await checkpointer.setup()
+            await secure_checkpoint_tables(pool)
         except Exception:
             await pool.close()
             raise

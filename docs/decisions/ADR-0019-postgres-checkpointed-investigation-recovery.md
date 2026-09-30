@@ -31,6 +31,11 @@ spend LLM credit twice.
    restarting the entire workflow.
 8. Checkpoints are runtime execution state, not long-term agent memory. They are
    scoped to one investigation and are not injected into future investigations.
+9. Immediately after LangGraph creates or migrates its checkpoint tables, the
+   application enables RLS and revokes all Supabase Data API privileges from
+   `anon`, `authenticated`, and `service_role`. Alembic separately revokes
+   default privileges so a newly created table is inaccessible before this
+   startup hardening runs.
 
 ## Recovery invariants
 
@@ -47,6 +52,8 @@ spend LLM credit twice.
 - Add the maintained `langgraph-checkpoint-postgres` package.
 - LangGraph creates and migrates its own checkpoint tables through the documented
   checkpointer setup method; Alembic continues to own application tables.
+- Checkpoint tables remain in `public` for library compatibility but are internal
+  backend storage, with default-deny RLS and no browser Data API grants.
 - Windows local development must start the API with a selector event loop because
   Psycopg asynchronous connections do not support the default Proactor loop.
 - Recovery is in-process on application startup; no distributed queue or new
