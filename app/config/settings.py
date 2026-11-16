@@ -28,13 +28,13 @@ class Settings(BaseSettings):
         default=8000,
         validation_alias=AliasChoices("API_PORT", "PORT"),
     )
-    cors_origins: list[str] = [
+    cors_origins: list[str] | str = [
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://localhost:3000",
     ]
 
-    @field_validator("cors_origins", mode="before")
+    @field_validator("cors_origins")
     @classmethod
     def parse_cors_origins(cls, value: Any) -> list[str]:
         """Support comma-delimited strings, JSON arrays, or native lists for CORS origins."""
