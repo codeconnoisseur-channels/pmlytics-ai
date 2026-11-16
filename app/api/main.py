@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from mocks.lifecycle import ensure_mock_services_running, stop_mock_services
 
 from app.api.dependencies import get_investigation_manager
@@ -56,7 +56,16 @@ def create_app() -> FastAPI:
     # 2. Register API Routes
     app.include_router(router)
 
-    # 3. Standardized Error Handlers
+    # 3. Root and Convenience Redirects
+    @app.get("/", include_in_schema=False)
+    async def root_redirect() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
+
+    @app.get("/health", include_in_schema=False)
+    async def health_redirect() -> RedirectResponse:
+        return RedirectResponse(url="/api/v1/health")
+
+    # 4. Standardized Error Handlers
     from fastapi.encoders import jsonable_encoder
 
     @app.exception_handler(RequestValidationError)
