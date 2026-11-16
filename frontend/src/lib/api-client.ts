@@ -204,4 +204,13 @@ export class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient();
+function resolveDefaultBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (envUrl) {
+    const cleanUrl = envUrl.replace(/\/$/, '');
+    return cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`;
+  }
+  return '/api/v1';
+}
+
+export const apiClient = new ApiClient(resolveDefaultBaseUrl());

@@ -1,7 +1,7 @@
 """Application configuration using Pydantic Settings."""
 
 from functools import lru_cache
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,13 +20,39 @@ class Settings(BaseSettings):
     # Application
     environment: str = "development"
     log_level: str = "INFO"
-    api_host: str = "127.0.0.1"
-    api_port: int = 8000
+    api_host: str = Field(
+        default="127.0.0.1",
+        validation_alias=AliasChoices("API_HOST", "HOST"),
+    )
+    api_port: int = Field(
+        default=8000,
+        validation_alias=AliasChoices("API_PORT", "PORT"),
+    )
     cors_origins: list[str] = [
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://localhost:3000",
     ]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: Any) -> list[str]:
+        """Support comma-delimited strings, JSON arrays, or native lists for CORS origins."""
+        if isinstance(value, str):
+            value = value.strip()
+            if value.startswith("[") and value.endswith("]"):
+                try:
+                    import json
+
+                    parsed = json.loads(value)
+                    if isinstance(parsed, list):
+                        return [str(item).strip() for item in parsed if str(item).strip()]
+                except Exception:
+                    pass
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        if isinstance(value, (list, tuple, set)):
+            return [str(item).strip() for item in value if str(item).strip()]
+        return []
 
     # Application persistence and identity
     database_url: str = ""
