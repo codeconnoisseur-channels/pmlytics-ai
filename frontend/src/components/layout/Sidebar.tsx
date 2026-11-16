@@ -11,6 +11,7 @@ import {
   PanelLeftOpen,
   Pencil,
   Plus,
+  Settings,
   Trash2,
   X,
 } from 'lucide-react';
@@ -150,6 +151,22 @@ export function Sidebar({
             >
               <FileText className={cn('h-4 w-4 shrink-0', pathname?.startsWith('/investigations') && 'text-[#c8f46b]')} aria-hidden="true" />
               {!collapsed ? <span>Investigations</span> : null}
+            </Link>
+
+            <Link
+              href="/settings"
+              onClick={onCloseMobile}
+              className={cn(
+                'flex min-h-11 touch-manipulation items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+                pathname?.startsWith('/settings')
+                  ? 'bg-brand-primary font-semibold text-white shadow-sm'
+                  : 'text-txt-secondary hover:bg-surface-subtle hover:text-txt-primary',
+                collapsed && 'justify-center px-2'
+              )}
+              title="Settings & Integrations"
+            >
+              <Settings className={cn('h-4 w-4 shrink-0', pathname?.startsWith('/settings') && 'text-[#c8f46b]')} aria-hidden="true" />
+              {!collapsed ? <span>Settings & Integrations</span> : null}
             </Link>
           </nav>
 

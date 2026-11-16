@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Menu, Plus, LogOut } from 'lucide-react';
+import { Menu, Plus, LogOut, Settings } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { signOut } from '@/app/auth/actions';
 
@@ -39,6 +39,15 @@ export function Header({ onToggleMobileMenu, title, actions, isAuthenticated = f
       </div>
 
       <div className="flex items-center gap-3">
+        <Link
+          href="/settings"
+          className="inline-flex h-9 w-9 touch-manipulation items-center justify-center rounded-full border border-border-strong bg-surface text-txt-secondary hover:text-txt-primary hover:bg-surface-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+          aria-label="Workspace Settings"
+          title="Settings & Integrations"
+        >
+          <Settings className="h-4 w-4" aria-hidden="true" />
+        </Link>
+
         {actions || (
           <Link
             href="/investigations"

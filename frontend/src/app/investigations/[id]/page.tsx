@@ -341,6 +341,7 @@ export function InvestigationWorkspaceView({ investigationId }: InvestigationWor
         evidenceCount={evidenceMetrics.sourceCount}
         supportingRecordCount={evidenceMetrics.recordCount}
         scope={result.scope}
+        detail={result}
         onToggleLedger={() => setIsLedgerOpen((prev) => !prev)}
         isLedgerOpen={isLedgerOpen}
       />

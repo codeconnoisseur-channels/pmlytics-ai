@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/primitives/Button';
+import { ExportBriefMenu } from '@/components/workspace/ExportBriefMenu';
+import type { InvestigationDetailResponse } from '@/types/domain';
 import { cn } from '@/lib/utils';
 
 export interface WorkspaceHeaderProps {
@@ -16,6 +18,7 @@ export interface WorkspaceHeaderProps {
   onToggleLedger: () => void;
   isLedgerOpen?: boolean;
   scope?: { start_time?: string | null; end_time?: string | null };
+  detail?: InvestigationDetailResponse | null;
 }
 
 const SCOPE_DATE_FORMATTER = new Intl.DateTimeFormat('en-GB', {
@@ -39,6 +42,7 @@ export function WorkspaceHeader({
   onToggleLedger,
   isLedgerOpen,
   scope,
+  detail,
 }: WorkspaceHeaderProps) {
   const isCompleted = status.toLowerCase() === 'completed';
   const isFailed = status.toLowerCase() === 'failed';
@@ -64,6 +68,7 @@ export function WorkspaceHeader({
 
           {/* Action Controls */}
           <div className="flex items-center gap-2">
+            <ExportBriefMenu detail={detail} userQuery={userQuery} />
             <Button
               variant={isLedgerOpen ? 'primary' : 'secondary'}
               size="sm"
