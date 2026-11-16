@@ -17,7 +17,7 @@ export interface AIProvidersConfig {
   customEndpoint: CustomEndpointConfig;
 }
 
-export type RoutingPreset = 'budget' | 'balanced' | 'frontier' | 'custom';
+export type RoutingPreset = 'budget' | 'balanced' | 'deepseek' | 'anthropic' | 'frontier' | 'custom';
 
 export interface ModelRoutingConfig {
   preset: RoutingPreset;
@@ -83,6 +83,18 @@ export const PRESET_MODELS: Record<Exclude<RoutingPreset, 'custom'>, Omit<ModelR
     specialistModel: 'openai/gpt-4.1-mini',
     pmModel: 'openai/gpt-5.4',
     criticModel: 'openai/gpt-5.4-mini',
+  },
+  deepseek: {
+    plannerModel: 'deepseek/deepseek-chat',
+    specialistModel: 'deepseek/deepseek-chat',
+    pmModel: 'deepseek/deepseek-reasoner',
+    criticModel: 'deepseek/deepseek-chat',
+  },
+  anthropic: {
+    plannerModel: 'anthropic/claude-haiku-3.5',
+    specialistModel: 'anthropic/claude-haiku-3.5',
+    pmModel: 'anthropic/claude-sonnet-4.6',
+    criticModel: 'anthropic/claude-haiku-3.5',
   },
   frontier: {
     plannerModel: 'openai/gpt-5.4',
