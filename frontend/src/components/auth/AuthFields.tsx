@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Eye, EyeOff } from 'lucide-react';
+import { Check, Eye, EyeOff, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AuthFieldsProps {
@@ -83,30 +83,52 @@ export function AuthFields({
 
         {isNewPassword ? (
           <div id="password-requirements" className="mt-3" aria-live="polite">
-            <p className="text-xs font-medium text-txt-secondary">Your password must include:</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-txt-secondary">Password requirements:</p>
+              {password.length > 0 && requirements.every((r) => r.met) ? (
+                <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                  <Check className="h-3 w-3 stroke-[3]" /> All requirements met
+                </span>
+              ) : null}
+            </div>
             <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              {requirements.map((requirement) => (
-                <li
-                  key={requirement.label}
-                  className={cn(
-                    'flex items-center gap-1.5 text-xs',
-                    requirement.met ? 'text-status-pass-text' : 'text-txt-muted'
-                  )}
-                >
-                  <span
+              {requirements.map((requirement) => {
+                const isMet = requirement.met;
+                const hasTyped = password.length > 0;
+
+                return (
+                  <li
+                    key={requirement.label}
                     className={cn(
-                      'flex h-4 w-4 items-center justify-center rounded-full border',
-                      requirement.met
-                        ? 'border-status-pass-border bg-status-pass-bg'
-                        : 'border-border bg-surface'
+                      'flex items-center gap-1.5 text-xs transition-colors',
+                      isMet
+                        ? 'text-emerald-700 font-medium'
+                        : hasTyped
+                        ? 'text-rose-600'
+                        : 'text-txt-muted'
                     )}
-                    aria-hidden="true"
                   >
-                    {requirement.met ? <Check className="h-2.5 w-2.5" /> : null}
-                  </span>
-                  {requirement.label}
-                </li>
-              ))}
+                    <span
+                      className={cn(
+                        'flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+                        isMet
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-600'
+                          : hasTyped
+                          ? 'border-rose-300 bg-rose-50 text-rose-500'
+                          : 'border-border bg-surface text-txt-muted/60'
+                      )}
+                      aria-hidden="true"
+                    >
+                      {isMet ? (
+                        <Check className="h-2.5 w-2.5 stroke-[2.5]" />
+                      ) : (
+                        <X className="h-2.5 w-2.5 stroke-[2.5]" />
+                      )}
+                    </span>
+                    <span>{requirement.label}</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ) : null}
