@@ -1,26 +1,26 @@
 'use client';
 
 import React from 'react';
-import { Cpu, Sliders, Sparkles, Zap, ShieldAlert, Award } from 'lucide-react';
+import { Cpu, Sparkles, Zap, Award } from 'lucide-react';
 import type { ModelRoutingConfig, RoutingPreset } from '@/lib/settings-store';
 import { PRESET_MODELS } from '@/lib/settings-store';
-import { cn } from '@/lib/utils';
 
 export interface ModelRoutingSectionProps {
   config: ModelRoutingConfig;
   onChange: (patch: Partial<ModelRoutingConfig>) => void;
 }
 
-const AVAILABLE_MODELS = [
-  { value: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini (Fast & Cheap)', provider: 'OpenAI' },
-  { value: 'openai/gpt-5.4-mini', label: 'GPT-5.4 Mini (Strong Reasoning)', provider: 'OpenAI' },
-  { value: 'openai/gpt-5.4', label: 'GPT-5.4 (Frontier Product Judgment)', provider: 'OpenAI' },
-  { value: 'anthropic/claude-haiku-3.5', label: 'Claude Haiku 3.5 (Fast Analysis)', provider: 'Anthropic' },
-  { value: 'anthropic/claude-sonnet-4.6', label: 'Claude Sonnet 4.6 (Frontier PM Benchmark)', provider: 'Anthropic' },
-  { value: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash (Ultra High-Speed)', provider: 'Google' },
-  { value: 'google/gemini-2.5-pro', label: 'Gemini 2.5 Pro (Deep Context Window)', provider: 'Google' },
-  { value: 'deepseek/deepseek-chat', label: 'DeepSeek-V3 (Cost-Effective)', provider: 'DeepSeek' },
-  { value: 'deepseek/deepseek-reasoner', label: 'DeepSeek-R1 (Deep Reasoning)', provider: 'DeepSeek' },
+const SUGGESTED_MODELS = [
+  'openai/gpt-5.4',
+  'openai/gpt-4.1-mini',
+  'openai/gpt-5.4-mini',
+  'anthropic/claude-sonnet-4.6',
+  'anthropic/claude-haiku-3.5',
+  'google/gemini-2.5-pro',
+  'google/gemini-2.5-flash',
+  'deepseek/deepseek-chat',
+  'deepseek/deepseek-reasoner',
+  'astra',
 ];
 
 export function ModelRoutingSection({ config, onChange }: ModelRoutingSectionProps) {
@@ -35,191 +35,171 @@ export function ModelRoutingSection({ config, onChange }: ModelRoutingSectionPro
     }
   };
 
-  const handleCustomModelChange = (roleKey: keyof Omit<ModelRoutingConfig, 'preset'>, modelValue: string) => {
+  const handleModelChange = (roleKey: keyof Omit<ModelRoutingConfig, 'preset'>, value: string) => {
     onChange({
       preset: 'custom',
-      [roleKey]: modelValue,
+      [roleKey]: value,
     });
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-bold text-txt-primary flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-brand-primary" aria-hidden="true" />
-          <span>Model Routing per Agent Task</span>
-        </h2>
-        <p className="text-xs text-txt-secondary mt-1">
-          Optimize your budget and investigation latency by routing high-volume evidence gathering to fast mini models and reserving frontier reasoning for the final PM synthesis.
-        </p>
-      </div>
+      <datalist id="suggested-models">
+        {SUGGESTED_MODELS.map((m) => (
+          <option key={m} value={m} />
+        ))}
+      </datalist>
 
-      {/* Preset Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button
-          type="button"
-          onClick={() => handleSelectPreset('budget')}
-          className={cn(
-            'flex flex-col text-left rounded-xl border p-3.5 transition-all',
-            config.preset === 'budget'
-              ? 'border-brand-primary bg-brand-subtle/30 ring-1 ring-brand-primary shadow-sm'
-              : 'border-border bg-surface hover:border-border-strong'
-          )}
-        >
-          <div className="flex items-center justify-between w-full mb-1">
-            <span className="font-bold text-sm text-txt-primary">Budget / Fast</span>
-            <Zap className="w-4 h-4 text-amber-500" />
-          </div>
-          <p className="text-xs text-txt-secondary mb-2">
-            Uses high-speed Flash & Mini models for all agents. Lowest cost and fastest completion.
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-txt-primary flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-brand-primary" aria-hidden="true" />
+            <span>Model per Task</span>
+          </h2>
+          <p className="text-xs text-txt-muted mt-0.5">
+            Select or type any model ID (e.g. OpenAI, Anthropic, Gemini, Astra, or custom).
           </p>
-          <div className="mt-auto text-[11px] font-mono text-txt-muted">
-            Est. &lt; $0.01 per run
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleSelectPreset('balanced')}
-          className={cn(
-            'flex flex-col text-left rounded-xl border p-3.5 transition-all relative',
-            config.preset === 'balanced'
-              ? 'border-brand-primary bg-brand-subtle/30 ring-1 ring-brand-primary shadow-sm'
-              : 'border-border bg-surface hover:border-border-strong'
-          )}
-        >
-          <div className="absolute -top-2 right-3 px-2 py-0.5 rounded-full bg-brand-primary text-white text-[9px] font-bold uppercase tracking-wider">
-            Recommended
-          </div>
-          <div className="flex items-center justify-between w-full mb-1">
-            <span className="font-bold text-sm text-txt-primary">Balanced (Standard)</span>
-            <Sparkles className="w-4 h-4 text-brand-primary" />
-          </div>
-          <p className="text-xs text-txt-secondary mb-2">
-            Mini models for data gathering, frontier GPT-5.4 exclusively for PM synthesis.
-          </p>
-          <div className="mt-auto text-[11px] font-mono text-txt-muted">
-            Est. ~$0.04 per run
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleSelectPreset('frontier')}
-          className={cn(
-            'flex flex-col text-left rounded-xl border p-3.5 transition-all',
-            config.preset === 'frontier'
-              ? 'border-brand-primary bg-brand-subtle/30 ring-1 ring-brand-primary shadow-sm'
-              : 'border-border bg-surface hover:border-border-strong'
-          )}
-        >
-          <div className="flex items-center justify-between w-full mb-1">
-            <span className="font-bold text-sm text-txt-primary">Frontier Maximum</span>
-            <Award className="w-4 h-4 text-purple-600" />
-          </div>
-          <p className="text-xs text-txt-secondary mb-2">
-            Uses frontier GPT-5.4 & Claude Sonnet for every step. Highest reasoning depth.
-          </p>
-          <div className="mt-auto text-[11px] font-mono text-txt-muted">
-            Est. ~$0.20 per run
-          </div>
-        </button>
-      </div>
-
-      {/* Task Assignment Selectors */}
-      <div className="rounded-xl border border-border bg-surface p-4 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <div className="flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-txt-secondary" />
-            <span className="font-semibold text-sm text-txt-primary">Role-Based Model Assignment</span>
-          </div>
-          {config.preset === 'custom' && (
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-subtle text-txt-primary border border-border">
-              Custom Assignment
-            </span>
-          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-txt-primary mb-1">
-              1. Planning & Task Decomposition
-            </label>
-            <p className="text-[11px] text-txt-muted mb-2">
-              Analyzes user question, defines time boundaries, and dispatches specialist tasks.
-            </p>
-            <select
-              value={config.plannerModel}
-              onChange={(e) => handleCustomModelChange('plannerModel', e.target.value)}
-              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs text-txt-primary focus:border-brand-primary focus:outline-none"
-            >
-              {AVAILABLE_MODELS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  [{m.provider}] {m.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Subtle Quick Presets Bar */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[11px] text-txt-muted mr-1">Quick presets:</span>
+          <button
+            type="button"
+            onClick={() => handleSelectPreset('budget')}
+            className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              config.preset === 'budget'
+                ? 'bg-brand-primary text-white border-brand-primary font-semibold'
+                : 'bg-surface text-txt-secondary border-border hover:bg-surface-subtle'
+            }`}
+          >
+            <span className="flex items-center gap-1">
+              <Zap className="w-3 h-3" /> Fast / Low Cost
+            </span>
+          </button>
 
-          <div>
-            <label className="block text-xs font-semibold text-txt-primary mb-1">
+          <button
+            type="button"
+            onClick={() => handleSelectPreset('balanced')}
+            className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              config.preset === 'balanced'
+                ? 'bg-brand-primary text-white border-brand-primary font-semibold'
+                : 'bg-surface text-txt-secondary border-border hover:bg-surface-subtle'
+            }`}
+          >
+            <span className="flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> Balanced
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSelectPreset('frontier')}
+            className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+              config.preset === 'frontier'
+                ? 'bg-brand-primary text-white border-brand-primary font-semibold'
+                : 'bg-surface text-txt-secondary border-border hover:bg-surface-subtle'
+            }`}
+          >
+            <span className="flex items-center gap-1">
+              <Award className="w-3 h-3" /> Frontier Max
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4 Agent Roles Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 1. Planning */}
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-xs">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-txt-primary">
+              1. Planning & Decomposition
+            </label>
+            <span className="text-[10px] text-txt-muted">Structures inquiry</span>
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              list="suggested-models"
+              value={config.plannerModel}
+              onChange={(e) => handleModelChange('plannerModel', e.target.value)}
+              placeholder="e.g. openai/gpt-4.1-mini, astra..."
+              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs font-mono text-txt-primary placeholder:text-txt-muted focus:border-brand-primary focus:outline-none"
+            />
+          </div>
+          <p className="text-[11px] text-txt-muted mt-1.5">
+            Formulates the structured diagnostic plan and determines required data sources.
+          </p>
+        </div>
+
+        {/* 2. Specialist Gathering */}
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-xs">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-txt-primary">
               2. Specialist Evidence Gathering
             </label>
-            <p className="text-[11px] text-txt-muted mb-2">
-              Runs Zendesk searches, PostHog telemetry queries, and Jira issue inspections.
-            </p>
-            <select
-              value={config.specialistModel}
-              onChange={(e) => handleCustomModelChange('specialistModel', e.target.value)}
-              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs text-txt-primary focus:border-brand-primary focus:outline-none"
-            >
-              {AVAILABLE_MODELS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  [{m.provider}] {m.label}
-                </option>
-              ))}
-            </select>
+            <span className="text-[10px] text-txt-muted">Zendesk, Jira, PostHog</span>
           </div>
+          <div className="relative">
+            <input
+              type="text"
+              list="suggested-models"
+              value={config.specialistModel}
+              onChange={(e) => handleModelChange('specialistModel', e.target.value)}
+              placeholder="e.g. openai/gpt-4.1-mini, google/gemini-2.5-flash..."
+              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs font-mono text-txt-primary placeholder:text-txt-muted focus:border-brand-primary focus:outline-none"
+            />
+          </div>
+          <p className="text-[11px] text-txt-muted mt-1.5">
+            Executes tool queries across customer support tickets, telemetry, and issues.
+          </p>
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-txt-primary mb-1">
+        {/* 3. PM Synthesis */}
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-xs">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-txt-primary">
               3. PM Synthesis & Decision Brief
             </label>
-            <p className="text-[11px] text-txt-muted mb-2">
-              Translates verified facts into strategic product judgment, action items, and confidence calibration.
-            </p>
-            <select
+            <span className="text-[10px] text-txt-muted">Product judgment</span>
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              list="suggested-models"
               value={config.pmModel}
-              onChange={(e) => handleCustomModelChange('pmModel', e.target.value)}
-              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs text-txt-primary focus:border-brand-primary focus:outline-none"
-            >
-              {AVAILABLE_MODELS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  [{m.provider}] {m.label}
-                </option>
-              ))}
-            </select>
+              onChange={(e) => handleModelChange('pmModel', e.target.value)}
+              placeholder="e.g. openai/gpt-5.4, anthropic/claude-sonnet-4.6..."
+              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs font-mono text-txt-primary placeholder:text-txt-muted focus:border-brand-primary focus:outline-none"
+            />
           </div>
+          <p className="text-[11px] text-txt-muted mt-1.5">
+            Delivers executive recommendations, confidence score, and action plan.
+          </p>
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-txt-primary mb-1">
-              4. Critic Review & Rigor Check
+        {/* 4. Critic Review */}
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-xs">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-txt-primary">
+              4. Critic Review & Verification
             </label>
-            <p className="text-[11px] text-txt-muted mb-2">
-              Identifies causal leaps, ungrounded claims, and tensions before finalizing the brief.
-            </p>
-            <select
-              value={config.criticModel}
-              onChange={(e) => handleCustomModelChange('criticModel', e.target.value)}
-              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs text-txt-primary focus:border-brand-primary focus:outline-none"
-            >
-              {AVAILABLE_MODELS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  [{m.provider}] {m.label}
-                </option>
-              ))}
-            </select>
+            <span className="text-[10px] text-txt-muted">Rigor check</span>
           </div>
+          <div className="relative">
+            <input
+              type="text"
+              list="suggested-models"
+              value={config.criticModel}
+              onChange={(e) => handleModelChange('criticModel', e.target.value)}
+              placeholder="e.g. openai/gpt-5.4-mini, astra..."
+              className="w-full h-9 rounded-lg border border-border bg-canvas px-3 text-xs font-mono text-txt-primary placeholder:text-txt-muted focus:border-brand-primary focus:outline-none"
+            />
+          </div>
+          <p className="text-[11px] text-txt-muted mt-1.5">
+            Challenges ungrounded claims, missing evidence, and contradictions.
+          </p>
         </div>
       </div>
     </div>
